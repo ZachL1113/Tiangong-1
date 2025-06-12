@@ -2,7 +2,6 @@ body {
       display: flex;
       justify-content: center; /* 水平居中 */
       align-items: center; /* 竖直居中 */
-      user-select: none; /* 防止文字被选中 */
     }
 div.board{
     position: relative;
