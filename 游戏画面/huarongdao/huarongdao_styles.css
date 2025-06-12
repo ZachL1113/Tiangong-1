@@ -1,0 +1,39 @@
+div.bottom-part{
+    height: 50px;
+    width: 400px;
+}
+div.button{
+    position:absolute;
+    background-color: white;
+    height: 50px;
+    width: 100px;
+}
+div.board{
+    position: relative;
+    height: 500px;
+    width: 400px;
+}
+div.piece-soldier{
+    position: absolute;
+    height: 100px;
+    width: 100px;
+}
+div.piece-high-general{
+    position: absolute;
+    height: 200px;
+    width: 100px;
+}
+div.piece-wide-general{
+    position: absolute;
+    height: 100px;
+    width: 200px;
+}
+div.piece-king{
+    position: absolute;
+    height: 200px;
+    width: 200px;
+}
+img{
+    height: 100%;
+    width: 100%;
+}

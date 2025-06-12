@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="sliding_styles.css">
+</head>
+<body>
+    <div id="Direction"> <!--show direction-->
+    </div>
+    <script>
+    let startX = 0;
+    let startY = 0;
+    let isDragging = false;
+
+    window.addEventListener("mousedown", function(e) {
+        startX = e.clientX;
+        startY = e.clientY;
+        isDragging = true;
+    });
+
+    window.addEventListener("mouseup", function(e) {
+        if (!isDragging) return;
+
+        const endX = e.clientX;
+        const endY = e.clientY;
+
+        const deltaX = endX - startX;
+        const deltaY = endY - startY;
+
+        let direction = "";
+
+        if (Math.abs(deltaX) > Math.abs(deltaY)) {
+        direction = deltaX > 0 ? "R" : "L";
+        } else {
+        direction = deltaY > 0 ? "D" : "U";
+        }
+
+        isDragging = false;
+        
+        document.getElementById("Direction").textContent = "Direction:" + direction;
+    });
+    </script>
+</body>
+</html>

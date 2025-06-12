@@ -1,0 +1,29 @@
+div.h-1{
+    position: absolute;
+    height: 30px;
+}
+div.w-1{
+    position: absolute;
+    width: 30px;
+}
+div.w-3{
+    position: absolute;
+    width: 90px;
+}
+div.board{
+    position: absolute;
+    margin: 200px auto;
+    height: 420px;
+    width: 420px;
+}
+div.top-container{
+    position: absolute;
+    margin: 0 auto;
+    height: 100px;
+    width: 420px;
+}
+div.container{
+    position: relative;
+    width: 420px;
+    margin: 620px auto;
+}

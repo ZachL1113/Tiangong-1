@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="huarongdao_sliding_styles.css">
+</head>
+<body>
+    <div class="board">
+        <img src="board.png" alt="board">
+        <div class="pieces">
+            <div class="w1 h2" style="top: 0; left: 0;" data-name="huangzhong">
+                <img src="huangzhong.png" alt="huangzhong">
+            </div>
+            <div class="w1 h2" style="top: 280px; left: 0;" data-name="zhangfei">
+                <img src="zhangfei.png" alt="zhangfei">
+            </div>
+            <div class="w1 h1" style="top: 560px; left: 0;" data-name="soldier">
+                <img src="soldier.png" alt="soldier">
+            </div>
+            <div class="w2 h2" style="top: 0; left: 140px;" data-name="caocao">
+                <img src="caocao.png" alt="caocao">
+            </div>
+            <div class="w2 h1" style="top: 280px; left: 140px;" data-name="guanyu">
+                <img src="guanyu.png" alt="guanyu">
+            </div>
+            <div class="w1 h1" style="top: 420px; left: 140px;" data-name="soldier">
+                <img src="soldier.png" alt="soldier">
+            </div>
+            <div class="w1 h1" style="top: 420px; left: 280px;" data-name="soldier">
+                <img src="soldier.png" alt="soldier">
+            </div>
+            <div class="w1 h2" style="top: 0; left: 420px;" data-name="zhaoyun">
+                <img src="zhaoyun.png" alt="zhaoyun">
+            </div>
+            <div class="w1 h2" style="top: 280px; left: 420px;" data-name="zhaoyun">
+                <img src="zhaoyun.png" alt="zhaoyun">
+            </div>
+            <div class="w1 h1" style="top: 560px; left: 420px;" data-name="soldier">
+                <img src="soldier.png" alt="soldier">
+            </div>
+        </div>
+    </div>
+
+    <div id="Direction"></div>
+
+    <script>
+        let startX = 0;
+        let startY = 0;
+        let isDragging = false;
+        let selectedPiece = null;
+
+        const pieces = document.querySelectorAll("div.pieces > div");
+
+        pieces.forEach(piece => {
+            piece.addEventListener("mousedown", function(e) {
+                startX = e.clientX;
+                startY = e.clientY;
+                isDragging = true;
+                selectedPiece = this.getAttribute("data-name");
+                e.stopPropagation(); //avoid influencing father variables
+            });
+        });
+
+        window.addEventListener("mouseup", function(e) {
+            if (!isDragging || !selectedPiece) return;
+
+            const endX = e.clientX;
+            const endY = e.clientY;
+
+            const deltaX = endX - startX;
+            const deltaY = endY - startY;
+
+            let direction = "";
+
+            if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                direction = deltaX > 0 ? "R" : "L";
+            } else {
+                direction = deltaY > 0 ? "D" : "U";
+            }
+
+            document.getElementById("Direction").textContent = `Piece: ${selectedPiece}, Direction: ${direction}`;
+
+            isDragging = false;
+            selectedPiece = null;
+        });
+    </script>
+</body>
+</html>
