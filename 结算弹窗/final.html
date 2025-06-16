@@ -1,48 +1,116 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <link rel="stylesheet" href="final_styles.css">
-    </head>
-    <body>
-        <div id="layer2" class="final"></div>
-        <div id="layer1" class="board">
-            <img src="board.png" alt="board">
-            <div class="pieces">
-                <div class="w1 h2" style="top: 0; left: 0;" data-name="huangzhong">
-                    <img src="huangzhong_h.png" alt="huangzhong">
-                </div>
-                <div class="w1 h2" style="top: 224px; left: 0;" data-name="zhangfei">
-                    <img src="zhangfei_h.png" alt="zhangfei">
-                </div>
-                <div class="w1 h1" style="top: 448px; left: 0;" data-name="soldier">
-                    <img src="soldier.png" alt="soldier">
-                </div>
-                <div class="w2 h2" style="top: 0; left: 112px;" data-name="caocao">
-                    <img src="caocao.png" alt="caocao">
-                </div>
-                <div class="w2 h1" style="top: 224px; left: 112px;" data-name="guanyu">
-                    <img src="guanyu_w.png" alt="guanyu">
-                </div>
-                <div class="w1 h1" style="top: 336px; left: 112px;" data-name="soldier">
-                    <img src="soldier.png" alt="soldier">
-                </div>
-                <div class="w1 h1" style="top: 336px; left: 224px;" data-name="soldier">
-                    <img src="soldier.png" alt="soldier">
-                </div>
-                <div class="w1 h2" style="top: 0; left: 336px;" data-name="zhaoyun">
-                    <img src="zhaoyun_h.png" alt="zhaoyun">
-                </div>
-                <div class="w1 h2" style="top: 224px; left: 336px;" data-name="zhaoyun">
-                    <img src="machao_h.png" alt="zhaoyun">
-                </div>
-                <div class="w1 h1" style="top: 448px; left: 336px;" data-name="soldier">
-                    <img src="soldier.png" alt="soldier">
-                </div>
+<head>
+    <link rel="stylesheet" href="final_styles.css">
+</head>
+<body>
+    <div class="board">
+        <img src="board.png" alt="board">
+        <div class="pieces">
+            <div class="w1 h2" style="top: 0; left: 0;" data-name="huangzhong">
+                <img src="huangzhong_h.png" alt="huangzhong">
+            </div>
+            <div class="w1 h2" style="top: 224px; left: 0;" data-name="zhangfei">
+                <img src="zhangfei_h.png" alt="zhangfei">
+            </div>
+            <div class="w1 h1" style="top: 448px; left: 0;" data-name="soldier">
+                <img src="soldier.png" alt="soldier">
+            </div>
+            <div class="w2 h2" style="top: 0; left: 112px;" data-name="caocao">
+                <img src="caocao.png" alt="caocao">
+            </div>
+            <div class="w2 h1" style="top: 224px; left: 112px;" data-name="guanyu">
+                <img src="guanyu_w.png" alt="guanyu">
+            </div>
+            <div class="w1 h1" style="top: 336px; left: 112px;" data-name="soldier">
+                <img src="soldier.png" alt="soldier">
+            </div>
+            <div class="w1 h1" style="top: 336px; left: 224px;" data-name="soldier">
+                <img src="soldier.png" alt="soldier">
+            </div>
+            <div class="w1 h2" style="top: 0; left: 336px;" data-name="zhaoyun">
+                <img src="zhaoyun_h.png" alt="zhaoyun">
+            </div>
+            <div class="w1 h2" style="top: 224px; left: 336px;" data-name="zhaoyun">
+                <img src="machao_h.png" alt="zhaoyun">
+            </div>
+            <div class="w1 h1" style="top: 448px; left: 336px;" data-name="soldier">
+                <img src="soldier.png" alt="soldier">
             </div>
         </div>
+    </div>
 
-        <script>
+    <div id="PopUp" class="PopUp">
+        <div class="PopContainer">
+            <p>
+                Success!
+            </p>
+            <button id="CloseButton">
+                Close
+            </button>
+        </div>
+    </div>
 
-        </script>
-    </body>
+    <div id="Direction"></div>
+
+    <script>
+        let startX = 0;
+        let startY = 0;
+        let isDragging = false;
+        let activePiece = null;
+
+        const pieces = document.querySelectorAll(".pieces > div");
+
+        pieces.forEach(piece => {
+            piece.addEventListener("mousedown", function (e) {
+                e.preventDefault(); // 防止图片拖动
+                startX = e.clientX;
+                startY = e.clientY;
+                isDragging = true;
+                activePiece = this;
+            });
+
+            piece.ondragstart = () => false; // 禁止默认拖拽行为
+        });
+
+        document.addEventListener("mouseup", function (e) {
+            if (!isDragging || !activePiece) return;
+
+            const endX = e.clientX;
+            const endY = e.clientY;
+
+            const deltaX = endX - startX;
+            const deltaY = endY - startY;
+
+            const threshold = 10;
+            let direction = "";
+
+            if (Math.abs(deltaX) < threshold && Math.abs(deltaY) < threshold) {
+                direction = "Click (no move)";
+            } else if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                direction = deltaX > 0 ? "R" : "L";
+            } else {
+                direction = deltaY > 0 ? "D" : "U";
+            }
+
+            const pieceName = activePiece.getAttribute("data-name");
+            document.getElementById("Direction").textContent = `Piece: ${pieceName}, Direction: ${direction}`;
+
+            function ShowPopUp() {
+            document.getElementById('PopUp').style.display = 'flex';
+        }
+
+        if (direction == "D" && pieceName == "caocao") {
+            ShowPopUp()
+        }
+
+        document.getElementById('CloseButton').addEventListener('click', function(){
+            document.getElementById('PopUp').style.display = 'none';
+        })
+
+            isDragging = false;
+            activePiece = null;
+        });
+    </script>
+</body>
 </html>
