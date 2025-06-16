@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="frontpage_styles.css">
+</head>
+<body>
+    <div class="board">
+        <div class="name">
+            <h1>Welcome to Board King!</h1>
+        </div>
+        <div class="buttoncontainer">
+            <div class="gamebutton">
+                <button onclick="goToPage('huarongdao.html')">Huarongdao</button>
+                <button onclick="goToPage('2048.html')">2048</button>
+                <button onclick="goToPage('snake.html')">snake</button>
+            </div>
+            <div class="functionbutton">
+                <button onclick="goToPage('ranking.html')">Ranking</button>
+                <button onclick="goToPage('profile.html')">Profile</button>
+            </div>
+        </div>
+        <script>
+            function goToPage(page) {
+            window.location.href = page;
+            }
+        </script>
+    </div>
+</body>
+</html>
