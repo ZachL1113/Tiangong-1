@@ -3,11 +3,13 @@ package com.example.demo.Game.Game2048.src;
 import java.util.*;
 
 import com.example.demo.Core.GameState;
+import com.example.demo.Core.Direction;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class Board implements GameState{
     private final int[][] values = new int[4][4];
     private final Random random = new Random();
+    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     public Board() {
         spawnTile();
@@ -72,9 +74,7 @@ public class Board implements GameState{
 
     public boolean isFailed() {
         for (Direction d : Direction.values()) {
-            Board copy = new Board(false);
-            for (int i = 0; i < 4; i++)
-                System.arraycopy(values[i], 0, copy.values[i], 0, 4);
+            Board copy = this.copy();
             if (copy.move(d)) return false;
         }
         return true;
@@ -102,10 +102,18 @@ public class Board implements GameState{
 
     private Board(boolean dummy) {}
 
+    public Board copy() {
+        Board b = new Board(false);
+        for (int i = 0; i < 4; i++) {
+            System.arraycopy(this.values[i], 0, b.values[i], 0, 4);
+        }
+        return b;
+    }
+
     @Override
     public String toJson() {
         try {
-            return new ObjectMapper().writeValueAsString(this);
+            return MAPPER.writeValueAsString(this);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -113,7 +121,7 @@ public class Board implements GameState{
 
     public static Board fromJson(String json) {
         try {
-            return new ObjectMapper().readValue(json, Board.class);
+            return MAPPER.readValue(json, Board.class);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

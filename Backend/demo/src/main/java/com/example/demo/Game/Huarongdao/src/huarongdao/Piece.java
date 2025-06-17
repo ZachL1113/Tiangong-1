@@ -1,5 +1,7 @@
 package com.example.demo.Game.Huarongdao.src.huarongdao;
 
+import com.example.demo.Core.Direction;
+
 public class Piece {
     private final int id;
     private final String name;

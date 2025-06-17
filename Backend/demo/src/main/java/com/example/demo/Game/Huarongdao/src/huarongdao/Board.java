@@ -3,11 +3,13 @@ package com.example.demo.Game.Huarongdao.src.huarongdao;
 import java.util.*;
 
 import com.example.demo.Core.GameState;
+import com.example.demo.Core.Direction;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class Board implements GameState{
     public static final int ROWS = 5, COLS = 4;
     private final List<Piece> pieces = new ArrayList<>();
+    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     public Board() {}
 
@@ -68,7 +70,7 @@ public class Board implements GameState{
     @Override
     public String toJson() {
         try {
-            return new ObjectMapper().writeValueAsString(this);
+            return MAPPER.writeValueAsString(this);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -76,7 +78,7 @@ public class Board implements GameState{
 
     public static Board fromJson(String json) {
         try {
-            return new ObjectMapper().readValue(json, Board.class);
+            return MAPPER.readValue(json, Board.class);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

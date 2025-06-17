@@ -1,0 +1,7 @@
+# Maven target directory
+Backend/demo/target/
+# Compiled class files
+**/*.class
+# Eclipse/IntelliJ files
+*.iml
+.idea/
