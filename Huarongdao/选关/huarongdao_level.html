@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="huarongdao_level_styles.css">
+</head>
+<body>
+  <div id="level-selector">
+    <button id="prev-btn">⬅</button>
+    <div id="preview-container">
+      <img id="level-preview" src="levels/level1.png" alt="Level Preview" />
+      <p id="level-label">Level 1</p>
+    </div>
+    <button id="next-btn">➡</button>
+  </div>
+
+  <script>
+    const levels = [
+      { image: 'levels/level1.png', label: 'Level 1', id: 1 },
+      { image: 'levels/level2.png', label: 'Level 2', id: 2 },
+      { image: 'levels/level3.png', label: 'Level 3', id: 3 }
+    ];
+
+    let currentIndex = 0;
+
+    const preview = document.getElementById('level-preview');
+    const levelLabel = document.getElementById('level-label');
+
+    function updatePreview() {
+      const level = levels[currentIndex];
+      preview.src = level.image;
+      levelLabel.textContent = level.label;
+    }
+
+    document.getElementById('prev-btn').addEventListener('click', () => {
+      currentIndex = (currentIndex - 1 + levels.length) % levels.length;
+      updatePreview();
+    });
+
+    document.getElementById('next-btn').addEventListener('click', () => {
+      currentIndex = (currentIndex + 1) % levels.length;
+      updatePreview();
+    });
+
+    document.getElementById('preview-container').addEventListener('click', () => {
+      const selectedLevel = levels[currentIndex];
+      window.location.href = `play.html?level=${selectedLevel.id}`;
+    });
+
+    updatePreview();
+  </script>
+</body>
+</html>
