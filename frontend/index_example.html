@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Huarongdao Printing</title>
+</head>
+
+<body>
+  <script>
+    const BASE_URL = '';
+
+    async function getData(uri) {
+      try {
+        const response = await fetch(BASE_URL + uri);
+        if (!response.ok) {
+          throw new Error('网络响应不正常');
+        }
+        const data = await response.json();
+        return data;
+      } catch (error) {
+        console.error('获取数据失败:', error);
+        throw error;
+      }
+    }
+
+    async function postData(uri, params) {
+      try {
+        const response = await fetch(BASE_URL + uri, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(params)
+        });
+        if (!response.ok) {
+          throw new Error('网络响应不正常');
+        }
+        const data = await response.json();
+        return data;
+      } catch (error) {
+        console.error('发送数据失败:', error);
+        throw error;
+      }
+    }
+    
+    const status = getData("/games/2048/new").then(data => {
+      console.log(data);
+      document.getElementById('result').textContent = JSON.stringify(data, null, 2)
+    });
+  </script>
+  <h1>Huarongdao Printing</h1>
+  <div id="result"></div>
+  <div id="error"></div>
+</body>
+
+</html>

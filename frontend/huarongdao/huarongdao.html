@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <link rel="stylesheet" href="../css/huarongdao_sliding_styles.css">
+</head>
+
+<body>
+  <div class="board" id="board"></div>
+  <div id="Direction"></div>
+
+  <script type="module">
+    import { getNewGame, sendMove } from '../js/backend.js';
+    import {huarongdao_print} from '../js/huarongdao_printing.js';
+
+    let currentBoard = null;
+    let startX = 0, startY = 0;
+    let isDragging = false;
+    let activePieceId = null;
+
+    getNewGame('huarongdao', level).then(data => {
+      currentBoard = data;
+      huarongdao_print(data);
+    });
+
+    document.addEventListener("mouseup", function (e) {
+      if (!isDragging || activePieceId === null) return;
+
+      const endX = e.clientX;
+      const endY = e.clientY;
+      const deltaX = endX - startX;
+      const deltaY = endY - startY;
+
+      const threshold = 10;
+      let direction = "";
+
+      if (Math.abs(deltaX) < threshold && Math.abs(deltaY) < threshold) {
+        direction = "";
+      } else if (Math.abs(deltaX) > Math.abs(deltaY)) {
+        direction = deltaX > 0 ? "R" : "L";
+      } else {
+        direction = deltaY > 0 ? "D" : "U";
+      }
+
+      document.getElementById("Direction").textContent =
+        `Piece: ${activePieceId}, Direction: ${direction}`;
+
+      if (direction !== "") {
+        sendMove("huarongdao", JSON.stringify(currentBoard), direction, activePieceId)
+          .then(result => {
+            if (result.valid) {
+              currentBoard = JSON.parse(result.boardJson);
+              huarongdao_print(currentBoard);
+              if (result.success) {
+                alert("success!");
+              }
+            } else {
+              alert("illegal!");
+            }
+          })
+          .catch(err => {
+            console.error("fail to move", err);
+          });
+      }
+
+      isDragging = false;
+      activePieceId = null;
+    });
+  </script>
+</body>
+
+</html>
