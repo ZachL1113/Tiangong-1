@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <link rel="stylesheet" href="huarongdao_level_styles.css">
+  <link rel="stylesheet" href="../css/huarongdao_level_styles.css">
 </head>
 <body>
   <div id="level-selector">
@@ -43,7 +43,7 @@
 
     document.getElementById('preview-container').addEventListener('click', () => {
       const selectedLevel = levels[currentIndex];
-      window.location.href = `../huarongdao/huarongdao.html?level=${currentindex}`;
+      window.location.href = `huarongdao.html?level=${currentIndex}`;
     });
 
     updatePreview();

@@ -1,4 +1,4 @@
-const BASE_URL = '';
+const BASE_URL = 'http://127.0.0.1:8080';
 
 
 /** 
@@ -6,7 +6,7 @@ const BASE_URL = '';
  * @param {number} [level]
  * @returns {Promise<Object>}
 */
-export async function getNewGame(game, level = null) {
+async function getNewGame(game, level = null) {
   let uri = `/games/${game}/new`;
   if (game === 'huarongdao' && level !== null) {
     uri += `?level=${level}`;
@@ -22,7 +22,7 @@ export async function getNewGame(game, level = null) {
  * @param {number} pieceId - 棋子编号（仅部分游戏使用）
  * @returns {Promise<Object>} 返回 { boardJson, valid, success }
  */
-export async function sendMove(game, boardJson, direction, pieceId) {
+async function sendMove(game, boardJson, direction, pieceId) {
   return await postData(`/games/${game}/move`, {
     boardJson,
     direction,
