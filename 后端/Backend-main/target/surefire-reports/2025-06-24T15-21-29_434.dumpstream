@@ -1,0 +1,5 @@
+# Created at 2025-06-24T15:21:29.582
+Boot Manifest-JAR contains absolute paths in classpath 'E:\sem 2\orbital 25\游戏\后端\Backend-main\target\test-classes'
+Hint: <argLine>-Djdk.net.URLClassPath.disableClassPathURLCheck=true</argLine>
+'other' has different root
+
