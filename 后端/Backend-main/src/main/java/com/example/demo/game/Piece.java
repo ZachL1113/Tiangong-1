@@ -23,7 +23,7 @@ public record Piece(
     public Piece moved(Direction dir) {
         int nx = x + (dir == Direction.RIGHT ? 1 : dir == Direction.LEFT ? -1 : 0);
         int ny = y + (dir == Direction.DOWN ? 1 : dir == Direction.UP ? -1 : 0);
-        return new Piece(id, name, width, height, nx, ny);
+        return new Piece(id, name, nx, ny, width, height);
     }
 
     public boolean occupies(int px, int py) {

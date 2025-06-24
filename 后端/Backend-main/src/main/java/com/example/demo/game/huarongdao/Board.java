@@ -91,14 +91,6 @@ public class Board implements BoardGame {
         return b;
     }
 
-    public static Board fromArrays(int[][] pos, int[][] def) {
-        Board b = new Board();
-        for (int i = 0; i < Math.min(pos.length, def.length); i++) {
-            b.addPiece(new Piece(i, String.valueOf(i), def[i][0], def[i][1], pos[i][0], pos[i][1]));
-        }
-        return b;
-    }
-
     public static Board fromJson(String json) {
         return GameState.fromJson(json, Board.class);
     }

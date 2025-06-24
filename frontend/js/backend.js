@@ -22,6 +22,7 @@ async function getNewGame(game, level = null) {
  * @param {number} pieceId - 棋子编号（仅部分游戏使用）
  * @returns {Promise<Object>} 返回 { boardJson, valid, success }
  */
+
 async function sendMove(game, boardJson, direction, pieceId) {
   return await postData(`/games/${game}/move`, {
     boardJson,

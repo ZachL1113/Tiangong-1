@@ -32,6 +32,8 @@ public class MoveController {
 
     @PostMapping("/{game}/move")
     public MoveResponse move(@PathVariable String game, @RequestBody MoveRequest req) {
+        System.out.println("✅ 收到移动请求 move() 调用了！");
+
         GameService svc = services.get(game);
         if (svc == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Unknown game: " + game);

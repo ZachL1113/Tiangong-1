@@ -29,6 +29,9 @@ public class HuarongdaoService implements GameService {
         Board board = Board.fromJson(req.boardJson());
         Direction dir = Direction.fromInput(req.direction());
         boolean valid = board.move(req.pieceId(), dir);
+
+        System.out.println("👉 After move boardJson: " + board.toJson());
+
         return new MoveResponse(board.toJson(), valid, board.isSolved());
     }
 

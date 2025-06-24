@@ -36,11 +36,16 @@ public class HuarongdaoDefaults {
             new int[][]{{2,1}, {1,1}, {1,1}, {1,1}, {1,1}, {1,2}, {1,2}, {1,2}, {1,2}, {2,2}}
         );
     }
+    
+    private static String name(int i){
+        String[] name = { "guanyu", "soldier", "soldier", "soldier", "soldier", "huangzhong", "machao", "zhaoyun", "zhangfei", "caocao" };
+        return name[i];
+    }
 
     private static Board build(int[][] pos, int[][] def) {
         Board b = new Board();
         for (int i = 0; i < Math.min(pos.length, def.length); i++) {
-            b.addPiece(new Piece(i, String.valueOf(i), def[i][0], def[i][1], pos[i][0], pos[i][1]));
+            b.addPiece(new Piece(i, name(i), def[i][0], def[i][1], pos[i][0], pos[i][1]));
         }
         return b;
     }
