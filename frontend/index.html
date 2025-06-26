@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>游戏样例</title>
+  <style>
+    :root {
+      --piece-size: 10vmin;
+      --piece-count-width: 9;
+      --piece-count-height: 9;
+      --in-debug-mode: 0;
+    }
+
+    #board {
+      width: calc((var(--piece-count-width)) * var(--piece-size) * (1 + var(--in-debug-mode)));
+      height: calc((var(--piece-count-height)) * var(--piece-size));
+      border: 5px solid black;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .board>div {
+      position: absolute;
+      top: 50px;
+      left: calc((var(--piece-count-height)) * var(--piece-size));
+      background-color: burlywood;
+      width: 100px;
+      height: 100px;
+      border: 2px solid black;
+    }
+
+    .board>.y0 {
+      top: 0;
+    }
+
+    .board>.y1 {
+      top: calc(var(--piece-size));
+    }
+
+    .board>.y2 {
+      top: calc(var(--piece-size) * 2);
+    }
+
+    .board>.y3 {
+      top: calc(var(--piece-size) * 3);
+    }
+
+    .board>.y4 {
+      top: calc(var(--piece-size) * 4);
+    }
+
+    .board>.y5 {
+      top: calc(var(--piece-size) * 5);
+    }
+
+    .board>.y6 {
+      top: calc(var(--piece-size) * 6);
+    }
+
+    .board>.y7 {
+      top: calc(var(--piece-size) * 7);
+    }
+
+    .board>.y8 {
+      top: calc(var(--piece-size) * 8);
+    }
+
+    .board>.x0 {
+      left: 0;
+    }
+
+    .board>.x1 {
+      left: calc(var(--piece-size));
+    }
+
+    .board>.x2 {
+      left: calc(var(--piece-size) * 2);
+    }
+
+    .board>.x3 {
+      left: calc(var(--piece-size) * 3);
+    }
+
+    .board>.x4 {
+      left: calc(var(--piece-size) * 4);
+    }
+
+    .board>.x5 {
+      left: calc(var(--piece-size) * 5);
+    }
+
+    .board>.x6 {
+      left: calc(var(--piece-size) * 6);
+    }
+
+    .board>.x7 {
+      left: calc(var(--piece-size) * 7);
+    }
+
+    .board>.x8 {
+      left: calc(var(--piece-size) * 8);
+    }
+
+    .board>.w1 {
+      width: calc(var(--piece-size) - 2px);
+    }
+
+    .board>.w2 {
+      width: calc(var(--piece-size) * 2 - 2px);
+    }
+
+    .board>.h1 {
+      height: calc(var(--piece-size) - 2px);
+    }
+
+    .board>.h2 {
+      height: calc(var(--piece-size) * 2 - 2px);
+    }
+  </style>
+</head>
+
+<body>
+  <div id="game">
+    <div id="board" class="board">
+      欢迎试用，请选择游戏类型
+    </div>
+    <div id="game-type">
+      <button onclick="changeGameType('g-2048')">2048</button>
+      <button onclick="changeGameType('g-hrd')">华容道</button>
+      <button onclick="changeGameType('g-shudu')">数独</button>
+    </div>
+  </div>
+  <script>
+    const gameTypeConfig = {
+      'g-2048': {
+        attrs: {
+          "--piece-size": "22.5vmin",
+          "--piece-count-width": 4,
+          "--piece-count-height": 4
+        },
+        pieceCount: 16,
+        pieceCountWidth: 4
+      },
+      'g-hrd': {
+        attrs: {
+          "--piece-size": "18vmin",
+          "--piece-count-width": 4,
+          "--piece-count-height": 5
+        },
+        pieceCount: 10,
+        pieceCountWidth: 4
+      },
+      'g-shudu': {
+        attrs: {
+          "--piece-size": "10vmin",
+          "--piece-count-width": 9,
+          "--piece-count-height": 9
+        },
+        pieceCount: 81,
+        pieceCountWidth: 9
+      }
+    }
+    const pieces = [];
+
+    // 改变游戏类型
+    function changeGameType(gameType) {
+      if (!['g-2048', 'g-hrd', 'g-shudu'].includes(gameType)) {
+        return;
+      }
+      // 清空棋盘
+      const board = document.getElementById("board");
+      board.innerHTML = "";
+      pieces.length = 0;
+      // 重置棋盘类型
+      board.classList.remove('g-2048', 'g-hrd', 'g-shudu');
+      board.classList.add(gameType);
+
+      // 修改棋子数量及大小参数
+      const attrs = gameTypeConfig[gameType].attrs;
+      for (const attr in attrs) {
+        document.documentElement.style.setProperty(attr, attrs[attr]);
+      }
+      // 重置棋子
+      const X = gameTypeConfig[gameType].pieceCountWidth;
+      const pieceCount = gameTypeConfig[gameType].pieceCount;
+      for (let i = 0; i < pieceCount; i++) {
+        const piece = document.createElement("div");
+        piece.classList.add("piece");
+        board.appendChild(piece);
+        pieces.push(piece);
+
+        if (gameType !== 'g-hrd') {
+          // 数独与2048都是规则棋盘可以统一处理
+          piece.classList.add("w1", "h1", `x${i % X}`, `y${Math.floor(i / X)}`);
+        }
+      }
+      // 华容道的盘面涉及不一样的大小和不规律的位置乃至图片，需要单独处理
+      if (gameType === 'g-hrd') {
+        //xywh
+        const state = "0012,1022,3012,0212,1221,3212,1311,2311,0411,3411";
+        const piece_style = state.split(",");
+        for (let i = 0; i < piece_style.length; i++) {
+          const xywh = piece_style[i].split("");
+          pieces[i].classList.add(`x${xywh[0]}`, `y${xywh[1]}`, `w${xywh[2]}`, `h${xywh[3]}`);
+          // p.style.backgroundImage = `url(./images/${i}.png)`;
+        }
+      }
+    }
+
+  </script>
+</body>
+
+</html>

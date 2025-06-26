@@ -7,7 +7,7 @@
   <div id="level-selector">
     <button id="prev-btn">⬅</button>
     <div id="preview-container">
-      <img id="level-preview" src="levels/level1.png" alt="Level Preview" />
+      <img id="level-preview" src="../image/1.png" alt="Level Preview" />
       <p id="level-label">Level 1</p>
     </div>
     <button id="next-btn">➡</button>
@@ -15,9 +15,9 @@
 
   <script>
     const levels = [
-      { image: 'levels/level1.png', label: 'Level 1', id: 1 },
-      { image: 'levels/level2.png', label: 'Level 2', id: 2 },
-      { image: 'levels/level3.png', label: 'Level 3', id: 3 }
+      { image: '../image/1.png', label: 'Level 1', id: 1 },
+      { image: '../image/2.png', label: 'Level 2', id: 2 },
+      { image: '../image/3.png', label: 'Level 3', id: 3 }
     ];
 
     let currentIndex = 0;
@@ -43,7 +43,7 @@
 
     document.getElementById('preview-container').addEventListener('click', () => {
       const selectedLevel = levels[currentIndex];
-      window.location.href = `huarongdao.html?level=${currentIndex}`;
+      window.location.href = `huarongdao2.0.html?level=${currentIndex}&game=huarongdao`;
     });
 
     updatePreview();
