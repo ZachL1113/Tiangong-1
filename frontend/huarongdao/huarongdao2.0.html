@@ -126,6 +126,62 @@
         </div>
     </div>
     <script>
+        const BASE_URL = 'http://127.0.0.1:8080';
+        /** 
+        * @param {string} game
+        * @param {number} [level]
+        * @returns {Promise<Object>}
+        */
+        async function getNewGame(game, level = null) {
+            let uri = `/games/${game}/new`;
+            if (game === 'huarongdao' && level !== null) {
+                uri += `?level=${level}`;
+            }
+            return await getData(uri);
+        }
+
+        /**
+         * 发送用户移动操作
+         * @param {string} game - 游戏名，如 "2048" 或 "huarongdao"
+         * @param {string} boardJson - 当前棋盘状态（JSON 字符串）
+         * @param {string} direction - 方向：U / D / L / R（或 W/A/S/D）
+         * @param {number} pieceId - 棋子编号（仅部分游戏使用）
+         * @returns {Promise<Object>} 返回 { boardJson, valid, success }
+         */
+
+        async function sendMove(game, boardJson, direction, pieceId) {
+            return await postData(`/games/${game}/move`, {
+                boardJson,
+                direction,
+                pieceId,
+            });
+        }
+
+        async function getData(uri) {
+            try {
+                const response = await fetch(BASE_URL + uri);
+                if (!response.ok) throw new Error('网络响应不正常');
+                return await response.json();
+            } catch (error) {
+                console.error('获取数据失败:', error);
+                throw error;
+            }
+        }
+
+        async function postData(uri, params) {
+            try {
+                const response = await fetch(BASE_URL + uri, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(params),
+                });
+                if (!response.ok) throw new Error('网络响应不正常');
+                return await response.json();
+            } catch (error) {
+                console.error('发送数据失败:', error);
+                throw error;
+            }
+        }
         const gameTypeConfig = {
             '2048': {
                 attrs: {
@@ -155,39 +211,41 @@
                 pieceCountWidth: 9
             }
         }
+        let currentBoard = null;
         const pieces = [];
         const urlParams = new URLSearchParams(window.location.search);
         const level = parseInt(urlParams.get('level')) || 0;
         const game = urlParams.get('game');
         console.log(game, level)
-        changeGameType(game)
 
         // 改变游戏类型
-        function changeGameType(game) {
-            if (!['2048', 'huarongdao', 'sudoku'].includes(game)) {
+        async function changeGameType(game, level) {
+            if (!['2048', 'huarongdao', 'sudoku'].includes(game)) return;
+
+            // 获取游戏数据（确保异步完成）
+            currentBoard = await getNewGame(game, level);
+
+            if (!currentBoard || !currentBoard.pieces) {
+                console.error("currentBoard 加载失败：", currentBoard);
                 return;
             }
-            currentBoard = {"pieces":[{"id":0,"name":"guanyu","w":2,"h":1,"x":2,"y":0},{"id":1,"name":"soldier","w":1,"h":1,"x":2,"y":3},{"id":2,"name":"soldier","w":1,"h":1,"x":3,"y":3},{"id":3,"name":"soldier","w":1,"h":1,"x":2,"y":4},{"id":4,"name":"soldier","w":1,"h":1,"x":3,"y":4},{"id":5,"name":"huangzhong","w":2,"h":1,"x":2,"y":2},{"id":6,"name":"machao","w":1,"h":2,"x":0,"y":1},{"id":7,"name":"zhaoyun","w":1,"h":2,"x":1,"y":1},{"id":8,"name":"zhangfei","w":2,"h":1,"x":0,"y":0},{"id":9,"name":"caocao","w":2,"h":2,"x":0,"y":3}],"score":0,"cells":[[8,6,6,9,9],[8,7,7,9,9],[0,0,5,1,3],[0,0,5,2,4]]};
-            //getNewGame(game, level).then(data => {
-                //console.log(game, level);
-                //currentBoard = data;
-            //});
-            // 清空棋盘
+
+            // 以下是初始化渲染逻辑
             const board = document.getElementById("board");
             board.innerHTML = "";
             pieces.length = 0;
-            // 重置棋盘类型
+
             board.classList.remove('2048', 'huarongdao', 'sudoku');
             board.classList.add(game);
 
-            // 修改棋子数量及大小参数
             const attrs = gameTypeConfig[game].attrs;
             for (const attr in attrs) {
                 document.documentElement.style.setProperty(attr, attrs[attr]);
             }
-            // 重置棋子
+
             const X = gameTypeConfig[game].pieceCountWidth;
             const pieceCount = gameTypeConfig[game].pieceCount;
+
             for (let i = 0; i < pieceCount; i++) {
                 const piece = document.createElement("div");
                 piece.classList.add("piece");
@@ -195,31 +253,34 @@
                 pieces.push(piece);
 
                 if (game !== 'huarongdao') {
-                    // 数独与2048都是规则棋盘可以统一处理
                     piece.classList.add("w1", "h1", `x${i % X}`, `y${Math.floor(i / X)}`);
                 }
             }
-            // 华容道的盘面涉及不一样的大小和不规律的位置乃至图片，需要单独处理
+
             if (game === 'huarongdao') {
-                //xywh
                 currentBoard.pieces.forEach(currentPiece => {
-                    const p = pieces[currentPiece.id]
+                    const p = pieces[currentPiece.id];
+                    if (!p) return;
+
                     p.classList.add(`x${currentPiece.x}`, `y${currentPiece.y}`, `w${currentPiece.w}`, `h${currentPiece.h}`);
-                    
-                    p.style.backgroundSize = "100% 100%"
+                    p.style.backgroundSize = "100% 100%";
+
                     if (currentPiece.w === 1 && currentPiece.h === 2) {
                         p.style.backgroundImage = `url("../image/${currentPiece.name}_h.png")`;
-                        console.log(`../image/${currentPiece.name}_h.png`)
                     } else if (currentPiece.w === 2 && currentPiece.h === 1) {
                         p.style.backgroundImage = `url("../image/${currentPiece.name}_w.png")`;
-                        console.log(`../image/${currentPiece.name}_w.png`)
                     } else {
                         p.style.backgroundImage = `url("../image/${currentPiece.name}.png")`;
-                        console.log(`../image/${currentPiece.name}.png`)
                     }
                 });
             }
         }
+        (async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const level = parseInt(urlParams.get('level')) || 0;
+            const game = urlParams.get('game');
+            await changeGameType(game, level);
+        })();
 
     </script>
 </body>
