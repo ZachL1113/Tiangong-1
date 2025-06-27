@@ -10,19 +10,25 @@
         </div>
         <div class="buttoncontainer">
             <div class="gamebutton">
-                <button onclick="goToPage('huarongdao/huarongdao_level.html')">Huarongdao</button>
-                <button onclick="goToPage('2048.html')">2048</button>
-                <button onclick="goToPage('snake.html')">snake</button>
+                <button id = "huarongdao">Huarongdao</button>
+                <button id = "2048">2048</button>
+                <button id = "snake">snake</button>
             </div>
             <div class="functionbutton">
-                <button onclick="goToPage('ranking.html')">Ranking</button>
-                <button onclick="goToPage('profile.html')">Profile</button>
+                <button id = "ranking">Ranking</button>
+                <button id = "profile">Profile</button>
             </div>
         </div>
         <script>
-            function goToPage(page) {
-            window.location.href = page;
-            }
+            document.getElementById("huarongdao").addEventListener("click", () => {
+                window.location.href = `huarongdao/huarongdao_level.html`;
+            })
+            document.getElementById("2048").addEventListener("click", () => {
+                window.location.href = `huarongdao/huarongdao2.0.html?game=2048`;
+            })
+            document.getElementById("snake").addEventListener("click", () => {
+                window.location.href = `huarongdao/huarongdao2.0.html?game=snake`;
+            })
         </script>
     </div>
 </body>

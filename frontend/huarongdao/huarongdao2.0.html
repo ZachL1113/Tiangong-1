@@ -124,6 +124,10 @@
     <div id="game">
         <div id="board" class="board">
         </div>
+        <button id="L">←</button>
+        <button id="R">→</button>
+        <button id="U">↑</button>
+        <button id="D">↓</button>
     </div>
     <script>
         const BASE_URL = 'http://127.0.0.1:8080';
@@ -211,11 +215,24 @@
                 pieceCountWidth: 9
             }
         }
+
         let currentBoard = null;
+        let pieceCount = 0;
         const pieces = [];
         const urlParams = new URLSearchParams(window.location.search);
         const level = parseInt(urlParams.get('level')) || 0;
         const game = urlParams.get('game');
+        let startX = 0;
+        let startY = 0;
+        let isDragging = false;
+        let pieceId = null;
+        const board = document.getElementById("board");
+        let attr = null;
+
+        // document.addEventListener("dragstart", e => {
+        //     e.preventDefault(); // 禁用任何拖拽行为
+        // });
+
         console.log(game, level)
 
         // 改变游戏类型
@@ -224,14 +241,13 @@
 
             // 获取游戏数据（确保异步完成）
             currentBoard = await getNewGame(game, level);
+            console.log(currentBoard)
 
             if (!currentBoard || !currentBoard.pieces) {
                 console.error("currentBoard 加载失败：", currentBoard);
                 return;
             }
 
-            // 以下是初始化渲染逻辑
-            const board = document.getElementById("board");
             board.innerHTML = "";
             pieces.length = 0;
 
@@ -246,6 +262,64 @@
             const X = gameTypeConfig[game].pieceCountWidth;
             const pieceCount = gameTypeConfig[game].pieceCount;
 
+            printCurrentBoard(game, currentBoard)
+
+            // for (let i = 0; i < pieceCount; i++) {
+            //     const piece = document.createElement("div");
+            //     piece.classList.add("piece");
+            //     board.appendChild(piece);
+            //     pieces.push(piece);
+
+            //     if (game !== 'huarongdao') {
+            //         piece.classList.add("w1", "h1", `x${i % X}`, `y${Math.floor(i / X)}`);
+            //         piece.style.backgroundImage = `url("../image/${currentBoard[i]}.png")`;
+            //     }
+            // }
+
+            // if (game === 'huarongdao') {
+            //     currentBoard.pieces.forEach(currentPiece => {
+            //         const p = pieces[currentPiece.id];
+            //         if (!p) return;
+
+            //         p.classList.add(`x${currentPiece.x}`, `y${currentPiece.y}`, `w${currentPiece.w}`, `h${currentPiece.h}`);
+            //         p.style.backgroundSize = "100% 100%";
+            //         p.setAttribute("dataname", currentPiece.name)
+            //         p.setAttribute("dataId", currentPiece.id)
+
+            //         if (currentPiece.w === 1 && currentPiece.h === 2) {
+            //             p.style.backgroundImage = `url("../image/${currentPiece.name}_h.png")`;
+            //         } else if (currentPiece.w === 2 && currentPiece.h === 1) {
+            //             p.style.backgroundImage = `url("../image/${currentPiece.name}_w.png")`;
+            //         } else {
+            //             p.style.backgroundImage = `url("../image/${currentPiece.name}.png")`;
+            //         }
+
+            //         // p.addEventListener("mousedown", function (e) {
+            //         //     console.log("mousedown at", e.clientX, e.clientY)
+            //         //     e.preventDefault(); // 防止图片拖动
+            //         //     startX = e.clientX;
+            //         //     startY = e.clientY;
+            //         //     isDragging = true;
+            //         //     activePiece = this;
+            //         // });
+
+            //         // p.ondragstart = () => false;
+
+            //         p.addEventListener("click", function () {
+            //             activePiece = this;
+            //         })
+            //     });
+
+            // };
+        }
+
+        function printCurrentBoard(game, currentBoard) {
+            board.innerHTML = "";
+            pieces.length = 0;
+
+            const pieceCount = gameTypeConfig[game].pieceCount;
+            const X = gameTypeConfig[game].pieceCountWidth;
+
             for (let i = 0; i < pieceCount; i++) {
                 const piece = document.createElement("div");
                 piece.classList.add("piece");
@@ -253,7 +327,13 @@
                 pieces.push(piece);
 
                 if (game !== 'huarongdao') {
+                    piece.classList.forEach(cls => {
+                        if (/^[xywh][0-9]+$/.test(cls)) {
+                            piece.classList.remove(cls);
+                        }
+                    });
                     piece.classList.add("w1", "h1", `x${i % X}`, `y${Math.floor(i / X)}`);
+                    piece.style.backgroundImage = `url("../image/${currentBoard[i]}.png")`;
                 }
             }
 
@@ -262,8 +342,16 @@
                     const p = pieces[currentPiece.id];
                     if (!p) return;
 
+                    p.classList.forEach(cls => {
+                        if (/^[xywh][0-9]+$/.test(cls)) {
+                            p.classList.remove(cls);
+                        }
+                    });
+
                     p.classList.add(`x${currentPiece.x}`, `y${currentPiece.y}`, `w${currentPiece.w}`, `h${currentPiece.h}`);
                     p.style.backgroundSize = "100% 100%";
+                    p.setAttribute("dataname", currentPiece.name);
+                    p.setAttribute("dataId", currentPiece.id);
 
                     if (currentPiece.w === 1 && currentPiece.h === 2) {
                         p.style.backgroundImage = `url("../image/${currentPiece.name}_h.png")`;
@@ -272,9 +360,16 @@
                     } else {
                         p.style.backgroundImage = `url("../image/${currentPiece.name}.png")`;
                     }
+
+                    p.addEventListener("click", function () {
+                        activePiece = this;
+                    });
                 });
             }
         }
+
+
+        //获取初始局面
         (async () => {
             const urlParams = new URLSearchParams(window.location.search);
             const level = parseInt(urlParams.get('level')) || 0;
@@ -282,6 +377,93 @@
             await changeGameType(game, level);
         })();
 
+
+        // document.addEventListener("mouseup", function (e) {
+        //     console.log("mouseup at", e.clientX, e.clientY)
+        //     if (!isDragging || !activePiece) return;
+
+        //     const endX = e.clientX;
+        //     const endY = e.clientY;
+
+        //     const deltaX = endX - startX;
+        //     const deltaY = endY - startY;
+
+        //     const threshold = 10;
+        //     let direction = "";
+
+        //     if (Math.abs(deltaX) < threshold && Math.abs(deltaY) < threshold) {
+        //         direction = "Click (no move)";
+        //     } else if (Math.abs(deltaX) > Math.abs(deltaY)) {
+        //         direction = deltaX > 0 ? "R" : "L";
+        //     } else {
+        //         direction = deltaY > 0 ? "D" : "U";
+        //     }
+        //     const pieceName = activePiece.getAttribute("dataname");
+        //     console.log(pieceName, direction)
+
+        //     isDragging = false;
+        //     activePiece = null;
+        // });
+
+        document.getElementById("L").addEventListener("click", () => {
+            direction = "A";
+            const pieceName = activePiece.getAttribute("dataname");
+            const pieceId = activePiece.getAttribute("dataId");
+            console.log(pieceName, direction)
+            sendMove("huarongdao", JSON.stringify(currentBoard), direction, pieceId)
+                .then(result => {
+                    if (result.valid) {
+                        currentBoard = JSON.parse(result.boardJson);
+                        console.log(currentBoard);
+                        printCurrentBoard("huarongdao", currentBoard);
+                    }
+                })
+        })
+
+        document.getElementById("U").addEventListener("click", () => {
+            direction = "W";
+            const pieceName = activePiece.getAttribute("dataname");
+            const pieceId = activePiece.getAttribute("dataId");
+            console.log(pieceName, direction)
+            sendMove("huarongdao", JSON.stringify(currentBoard), direction, pieceId)
+                .then(result => {
+                    if (result.valid) {
+                        currentBoard = JSON.parse(result.boardJson);
+                        console.log(currentBoard);
+                        printCurrentBoard("huarongdao", currentBoard);
+                    }
+                })
+        })
+
+        document.getElementById("R").addEventListener("click", () => {
+            direction = "D";
+            const pieceName = activePiece.getAttribute("dataname");
+            const pieceId = activePiece.getAttribute("dataId");
+            console.log(pieceName, direction)
+            sendMove("huarongdao", JSON.stringify(currentBoard), direction, pieceId)
+                .then(result => {
+                    if (result.valid) {
+                        currentBoard = JSON.parse(result.boardJson);
+                        console.log(currentBoard);
+                        printCurrentBoard("huarongdao", currentBoard);
+                    }
+                })
+        })
+
+        document.getElementById("D").addEventListener("click", () => {
+            direction = "S";
+            const pieceName = activePiece.getAttribute("dataname");
+            const pieceId = activePiece.getAttribute("dataId");
+            console.log(pieceName, direction)
+            sendMove("huarongdao", JSON.stringify(currentBoard), direction, pieceId)
+                .then(result => {
+                    if (result.valid) {
+                        currentBoard = JSON.parse(result.boardJson);
+                        console.log(currentBoard);
+                        printCurrentBoard("huarongdao", currentBoard);
+                    }
+                })
+        })
     </script>
 </body>
 
