@@ -7,10 +7,10 @@ public enum Direction {
             throw new IllegalArgumentException("input must not be null");
         }
         return switch (in.toUpperCase()) {
-            case "W" -> UP;
-            case "S" -> DOWN;
-            case "A" -> LEFT;
-            case "D" -> RIGHT;
+            case "U" -> UP;
+            case "D" -> DOWN;
+            case "L" -> LEFT;
+            case "R" -> RIGHT;
             default -> throw new IllegalArgumentException("Unknown direction: " + in);
         };
     }
