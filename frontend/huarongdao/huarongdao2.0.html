@@ -226,6 +226,7 @@
         let startY = 0;
         let isDragging = false;
         let pieceId = null;
+        let pieceName = null;
         const board = document.getElementById("board");
         let attr = null;
 
@@ -327,13 +328,14 @@
                 pieces.push(piece);
 
                 if (game !== 'huarongdao') {
+                    currentState = currentBoard.cells
                     piece.classList.forEach(cls => {
                         if (/^[xywh][0-9]+$/.test(cls)) {
                             piece.classList.remove(cls);
                         }
                     });
                     piece.classList.add("w1", "h1", `x${i % X}`, `y${Math.floor(i / X)}`);
-                    piece.style.backgroundImage = `url("../image/${currentBoard[i]}.png")`;
+                    piece.style.backgroundImage = `url("../image/${currentState[Math.floor(i/X)][i%X]}.png")`;
                 }
             }
 
@@ -362,7 +364,8 @@
                     }
 
                     p.addEventListener("click", function () {
-                        activePiece = this;
+                        pieceName = p.getAttribute("dataname");
+                        pieceId = p.getAttribute("dataId");
                     });
                 });
             }
@@ -407,60 +410,52 @@
 
         document.getElementById("L").addEventListener("click", () => {
             direction = "L";
-            const pieceName = activePiece.getAttribute("dataname");
-            const pieceId = activePiece.getAttribute("dataId");
-            console.log(pieceName, direction)
-            sendMove("huarongdao", JSON.stringify(currentBoard), direction, pieceId)
+            console.log(game, pieceName, direction)
+            sendMove(game, JSON.stringify(currentBoard), direction, pieceId)
                 .then(result => {
                     if (result.valid) {
                         currentBoard = JSON.parse(result.boardJson);
                         console.log(currentBoard);
-                        printCurrentBoard("huarongdao", currentBoard);
+                        printCurrentBoard(game, currentBoard);
                     }
                 })
         })
 
         document.getElementById("U").addEventListener("click", () => {
             direction = "U";
-            const pieceName = activePiece.getAttribute("dataname");
-            const pieceId = activePiece.getAttribute("dataId");
-            console.log(pieceName, direction)
-            sendMove("huarongdao", JSON.stringify(currentBoard), direction, pieceId)
+            console.log(game, pieceName, direction)
+            sendMove(game, JSON.stringify(currentBoard), direction, pieceId)
                 .then(result => {
                     if (result.valid) {
                         currentBoard = JSON.parse(result.boardJson);
                         console.log(currentBoard);
-                        printCurrentBoard("huarongdao", currentBoard);
+                        printCurrentBoard(game, currentBoard);
                     }
                 })
         })
 
         document.getElementById("R").addEventListener("click", () => {
             direction = "R";
-            const pieceName = activePiece.getAttribute("dataname");
-            const pieceId = activePiece.getAttribute("dataId");
-            console.log(pieceName, direction)
-            sendMove("huarongdao", JSON.stringify(currentBoard), direction, pieceId)
+            console.log(game, pieceName, direction)
+            sendMove(game, JSON.stringify(currentBoard), direction, pieceId)
                 .then(result => {
                     if (result.valid) {
                         currentBoard = JSON.parse(result.boardJson);
                         console.log(currentBoard);
-                        printCurrentBoard("huarongdao", currentBoard);
+                        printCurrentBoard(game, currentBoard);
                     }
                 })
         })
 
         document.getElementById("D").addEventListener("click", () => {
             direction = "D";
-            const pieceName = activePiece.getAttribute("dataname");
-            const pieceId = activePiece.getAttribute("dataId");
-            console.log(pieceName, direction)
-            sendMove("huarongdao", JSON.stringify(currentBoard), direction, pieceId)
+            console.log(game, pieceName, direction)
+            sendMove(game, JSON.stringify(currentBoard), direction, pieceId)
                 .then(result => {
                     if (result.valid) {
                         currentBoard = JSON.parse(result.boardJson);
                         console.log(currentBoard);
-                        printCurrentBoard("huarongdao", currentBoard);
+                        printCurrentBoard(game, currentBoard);
                     }
                 })
         })
