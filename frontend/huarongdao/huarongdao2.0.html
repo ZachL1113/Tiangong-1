@@ -122,14 +122,19 @@
 
 <body>
     <div id="game">
-        <div id="board" class="board">
+        <div id="board" class="board" style="background-image: url(../image/board.png)">
         </div>
         <button id="L">←</button>
         <button id="R">→</button>
         <button id="U">↑</button>
         <button id="D">↓</button>
+        <div id="stepcount"></div>
     </div>
     <script>
+        document.addEventListener("dragstart", function (e) {
+            e.preventDefault();
+        }, false)
+
         const BASE_URL = 'http://127.0.0.1:8080';
         /** 
         * @param {string} game
@@ -229,6 +234,7 @@
         let pieceName = null;
         const board = document.getElementById("board");
         let attr = null;
+        let steps = 0;
 
         // document.addEventListener("dragstart", e => {
         //     e.preventDefault(); // 禁用任何拖拽行为
@@ -271,6 +277,7 @@
             //     board.appendChild(piece);
             //     pieces.push(piece);
 
+
             //     if (game !== 'huarongdao') {
             //         piece.classList.add("w1", "h1", `x${i % X}`, `y${Math.floor(i / X)}`);
             //         piece.style.backgroundImage = `url("../image/${currentBoard[i]}.png")`;
@@ -295,21 +302,12 @@
             //             p.style.backgroundImage = `url("../image/${currentPiece.name}.png")`;
             //         }
 
-            //         // p.addEventListener("mousedown", function (e) {
-            //         //     console.log("mousedown at", e.clientX, e.clientY)
-            //         //     e.preventDefault(); // 防止图片拖动
-            //         //     startX = e.clientX;
-            //         //     startY = e.clientY;
-            //         //     isDragging = true;
-            //         //     activePiece = this;
-            //         // });
 
-            //         // p.ondragstart = () => false;
 
-            //         p.addEventListener("click", function () {
-            //             activePiece = this;
-            //         })
-            //     });
+            // p.addEventListener("click", function () {
+            //     activePiece = this;
+            // })
+            // });
 
             // };
         }
@@ -335,7 +333,7 @@
                         }
                     });
                     piece.classList.add("w1", "h1", `x${i % X}`, `y${Math.floor(i / X)}`);
-                    piece.style.backgroundImage = `url("../image/${currentState[Math.floor(i/X)][i%X]}.png")`;
+                    piece.style.backgroundImage = `url("../image/${currentState[Math.floor(i / X)][i % X]}.png")`;
                 }
             }
 
@@ -363,10 +361,19 @@
                         p.style.backgroundImage = `url("../image/${currentPiece.name}.png")`;
                     }
 
-                    p.addEventListener("click", function () {
-                        pieceName = p.getAttribute("dataname");
-                        pieceId = p.getAttribute("dataId");
+                    p.addEventListener("mousedown", function (e) {
+                        console.log("mousedown at", e.clientX, e.clientY)
+                        e.preventDefault(); // 防止图片拖动
+                        startX = e.clientX;
+                        startY = e.clientY;
+                        isDragging = true;
+                        activePiece = this;
                     });
+
+                    // p.addEventListener("click", function () {
+                    //     pieceName = p.getAttribute("dataname");
+                    //     pieceId = p.getAttribute("dataId");
+                    // });
                 });
             }
         }
@@ -381,35 +388,40 @@
         })();
 
 
-        // document.addEventListener("mouseup", function (e) {
-        //     console.log("mouseup at", e.clientX, e.clientY)
-        //     if (!isDragging || !activePiece) return;
+        document.addEventListener("mouseup", function (e) {
+            console.log("mouseup at", e.clientX, e.clientY)
+            if (!isDragging || !activePiece) return;
 
-        //     const endX = e.clientX;
-        //     const endY = e.clientY;
+            const endX = e.clientX;
+            const endY = e.clientY;
 
-        //     const deltaX = endX - startX;
-        //     const deltaY = endY - startY;
+            const deltaX = endX - startX;
+            const deltaY = endY - startY;
 
-        //     const threshold = 10;
-        //     let direction = "";
+            const threshold = 10;
+            let direction = "";
 
-        //     if (Math.abs(deltaX) < threshold && Math.abs(deltaY) < threshold) {
-        //         direction = "Click (no move)";
-        //     } else if (Math.abs(deltaX) > Math.abs(deltaY)) {
-        //         direction = deltaX > 0 ? "R" : "L";
-        //     } else {
-        //         direction = deltaY > 0 ? "D" : "U";
-        //     }
-        //     const pieceName = activePiece.getAttribute("dataname");
-        //     console.log(pieceName, direction)
+            if (Math.abs(deltaX) < threshold && Math.abs(deltaY) < threshold) {
+                direction = "Click (no move)";
+            } else if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                direction = deltaX > 0 ? "R" : "L";
+            } else {
+                direction = deltaY > 0 ? "D" : "U";
+            }
+            pieceName = activePiece.getAttribute("dataname");
+            pieceId = activePiece.getAttribute("dataId");
+            console.log(pieceName, direction);
 
-        //     isDragging = false;
-        //     activePiece = null;
-        // });
+            onClickMove(direction);
 
-        document.getElementById("L").addEventListener("click", () => {
-            direction = "L";
+            isDragging = false;
+            activePiece = null;
+        });
+
+        // document.getElementById("L").addEventListener("click", onClickMove("L"))
+
+        function onClickMove(dir) {
+            direction = dir;
             console.log(game, pieceName, direction)
             sendMove(game, JSON.stringify(currentBoard), direction, pieceId)
                 .then(result => {
@@ -419,47 +431,48 @@
                         printCurrentBoard(game, currentBoard);
                     }
                 })
-        })
+        }
 
-        document.getElementById("U").addEventListener("click", () => {
-            direction = "U";
-            console.log(game, pieceName, direction)
-            sendMove(game, JSON.stringify(currentBoard), direction, pieceId)
-                .then(result => {
-                    if (result.valid) {
-                        currentBoard = JSON.parse(result.boardJson);
-                        console.log(currentBoard);
-                        printCurrentBoard(game, currentBoard);
-                    }
-                })
-        })
+        //         document.getElementById("U").addEventListener("click", () => {
+        //             direction = "U";
+        //             console.log(game, pieceName, direction)
+        //             sendMove(game, JSON.stringify(currentBoard), direction, pieceId)
+        //                 .then(result => {
+        //                     if (result.valid) {
+        //                         currentBoard = JSON.parse(result.boardJson);
+        //                         console.log(currentBoard);
+        //                         printCurrentBoard(game, currentBoard);
+        //                     }
+        //                 })
+        //         })
 
-        document.getElementById("R").addEventListener("click", () => {
-            direction = "R";
-            console.log(game, pieceName, direction)
-            sendMove(game, JSON.stringify(currentBoard), direction, pieceId)
-                .then(result => {
-                    if (result.valid) {
-                        currentBoard = JSON.parse(result.boardJson);
-                        console.log(currentBoard);
-                        printCurrentBoard(game, currentBoard);
-                    }
-                })
-        })
+        //         document.getElementById("R").addEventListener("click", () => {
+        //             direction = "R";
+        //             console.log(game, pieceName, direction)
+        //             sendMove(game, JSON.stringify(currentBoard), direction, pieceId)
+        //                 .then(result => {
+        //                     if (result.valid) {
+        //                         currentBoard = JSON.parse(result.boardJson);
+        //                         console.log(currentBoard);
+        //                         printCurrentBoard(game, currentBoard);
+        //                     }
+        //                 })
+        //         })
 
-        document.getElementById("D").addEventListener("click", () => {
-            direction = "D";
-            console.log(game, pieceName, direction)
-            sendMove(game, JSON.stringify(currentBoard), direction, pieceId)
-                .then(result => {
-                    if (result.valid) {
-                        currentBoard = JSON.parse(result.boardJson);
-                        console.log(currentBoard);
-                        printCurrentBoard(game, currentBoard);
-                    }
-                })
-        })
+        //         document.getElementById("D").addEventListener("click", () => {
+        //             direction = "D";
+        //             console.log(game, pieceName, direction)
+        //             sendMove(game, JSON.stringify(currentBoard), direction, pieceId)
+        //                 .then(result => {
+        //                     if (result.valid) {
+        //                         currentBoard = JSON.parse(result.boardJson);
+        //                         console.log(currentBoard);
+        //                         printCurrentBoard(game, currentBoard);
+        //                     }
+        //                 })
+        //         })
     </script>
+
 </body>
 
 </html>
