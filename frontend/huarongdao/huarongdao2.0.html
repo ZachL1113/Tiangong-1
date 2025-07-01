@@ -145,7 +145,7 @@
             <button id="R">→</button>
             <button id="U">↑</button>
             <button id="D">↓</button> -->
-            <div id="stepcount"></div>
+            <div id="stepcount" style="position: absolute;bottom: 0;"></div>
         </div>
     </div>
     <script>
@@ -462,6 +462,13 @@
                         console.log(currentBoard);
                         printCurrentBoard(game, currentBoard);
                         steps = steps + 1;
+                        if (game === "huarongdao") {
+                            document.getElementById("stepcount").textContent = `StepCount: ${steps}`;
+                        }
+                        if (game === "2048") {
+                            const max = Math.max(...currentBoard.cells.flat());
+                            document.getElementById("stepcount").textContent = `LargestNumber: ${max}`
+                        }
                     }
                 })
         }
