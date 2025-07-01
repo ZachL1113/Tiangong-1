@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>游戏样例</title>
+    <title>Board King</title>
     <!-- <script type="module" src="../js/backend.js"></script> -->
     <style>
         :root {
@@ -12,11 +12,28 @@
             --in-debug-mode: 0;
         }
 
+        body {
+            align-items: center;
+            justify-content: center;
+            display: flex;
+            flex-direction: row;
+        }
+
+        #bgboard {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 800px;
+            width: 496px;
+        }
+
         #board {
             width: calc((var(--piece-count-width)) * var(--piece-size) * (1 + var(--in-debug-mode)));
             height: calc((var(--piece-count-height)) * var(--piece-size));
             border: 5px solid black;
-            position: relative;
+            position: absolute;
             overflow: hidden;
         }
 
@@ -122,13 +139,14 @@
 
 <body>
     <div id="game">
-        <div id="board" class="board" style="background-image: url(../image/board.png)">
+        <div id="bgboard" class="bgboard" style="background-image: url(../image/board.png);background-size: cover;">
+            <div id="board" class="board"></div>
+            <!-- <button id="L">←</button>
+            <button id="R">→</button>
+            <button id="U">↑</button>
+            <button id="D">↓</button> -->
+            <div id="stepcount"></div>
         </div>
-        <button id="L">←</button>
-        <button id="R">→</button>
-        <button id="U">↑</button>
-        <button id="D">↓</button>
-        <div id="stepcount"></div>
     </div>
     <script>
         document.addEventListener("dragstart", function (e) {
@@ -334,6 +352,7 @@
                     });
                     piece.classList.add("w1", "h1", `x${i % X}`, `y${Math.floor(i / X)}`);
                     piece.style.backgroundImage = `url("../image/${currentState[Math.floor(i / X)][i % X]}.png")`;
+                    piece.style.backgroundSize = "100% 100%";
                 }
             }
 
@@ -387,10 +406,21 @@
             await changeGameType(game, level);
         })();
 
-
+        if (game !== "huarongdao") {
+            document.addEventListener("mousedown", function (e) {
+                console.log("mousedown at", e.clientX, e.clientY)
+                e.preventDefault();
+                startX = e.clientX;
+                startY = e.clientY;
+                isDragging = true;
+            })
+        }
         document.addEventListener("mouseup", function (e) {
             console.log("mouseup at", e.clientX, e.clientY)
-            if (!isDragging || !activePiece) return;
+            if (!isDragging) return;
+            if (game === "huarongdao") {
+                if (!activePiece) return;
+            }
 
             const endX = e.clientX;
             const endY = e.clientY;
@@ -408,8 +438,10 @@
             } else {
                 direction = deltaY > 0 ? "D" : "U";
             }
-            pieceName = activePiece.getAttribute("dataname");
-            pieceId = activePiece.getAttribute("dataId");
+            if (game === "huarongdao") {
+                pieceName = activePiece.getAttribute("dataname");
+                pieceId = activePiece.getAttribute("dataId");
+            }
             console.log(pieceName, direction);
 
             onClickMove(direction);
@@ -429,6 +461,7 @@
                         currentBoard = JSON.parse(result.boardJson);
                         console.log(currentBoard);
                         printCurrentBoard(game, currentBoard);
+                        steps = steps + 1;
                     }
                 })
         }
