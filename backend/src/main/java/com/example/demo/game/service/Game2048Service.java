@@ -20,9 +20,6 @@ public class Game2048Service implements GameService {
         Board board = Board.fromJson(req.boardJson());
         Direction dir = Direction.fromInput(req.direction());
         boolean valid = board.move(req.pieceId(), dir);
-        if (valid) {
-            board.spawnPiece();
-        }
         return new MoveResponse(board.toJson(), valid, board.isSolved());
     }
 
