@@ -15,18 +15,22 @@ import com.example.demo.core.GameState;
 public class Board implements BoardGame {
     @JsonProperty("cells")
     private final int[][] values = new int[4][4];
+    @JsonProperty("prev")
+    private Board prev;
     private final Random random = new Random();
 
     public Board() {
-        spawnPiece();
-        spawnPiece();
+        spawnPiece(Direction.UP);
+        spawnPiece(Direction.UP);
     }
 
     @com.fasterxml.jackson.annotation.JsonCreator
-    public Board(@com.fasterxml.jackson.annotation.JsonProperty("cells") int[][] cells) {
+        public Board(@com.fasterxml.jackson.annotation.JsonProperty("cells") int[][] cells,
+                 @com.fasterxml.jackson.annotation.JsonProperty("prev") Board prev) {
         for (int i = 0; i < 4 && cells != null && i < cells.length; i++) {
             System.arraycopy(cells[i], 0, this.values[i], 0, Math.min(cells[i].length, 4));
         }
+        this.prev = prev;
     }
 
     public int get(int x, int y) {
@@ -37,6 +41,9 @@ public class Board implements BoardGame {
     public int[][] getCells() {
         return values;
     }
+
+    @JsonProperty("prev")
+    public Board getPrev() { return prev; }
 
     @JsonProperty("pieces")
     public List<BoardPiece> getPieces() {
@@ -61,18 +68,32 @@ public class Board implements BoardGame {
                 max = Math.max(max, x);
         return max;
     }
-
     public boolean move(Integer pieceId, Direction dir) {
+        if (dir == Direction.BACK) {
+            if (this.prev == null) return false;
+            for (int i = 0; i < 4; i++)
+                System.arraycopy(this.prev.values[i], 0, values[i], 0, 4);
+            this.prev = this.prev.prev;
+            return true;
+        }
+
+        Board previous = this.copy();
         int[][] before = copyGrid();
         switch (dir) {
             case LEFT:  slide(false, false); break;
             case RIGHT: slide(true, false); break;
             case UP:    slide(false, true);  break;
             case DOWN:  slide(true, true);   break;
+            default:    break;
         }
-        return !Arrays.deepEquals(before, values);
+        boolean changed = !Arrays.deepEquals(before, values);
+        if (changed) {
+            this.prev = previous;
+            spawnPiece(dir);
+        }
+        return changed;
     }
-
+   
 
     private void slide(boolean reverse, boolean vertical) {
         for (int i = 0; i < 4; i++) {
@@ -125,20 +146,41 @@ public class Board implements BoardGame {
         }
         return true;
     }
-
-    public void spawnPiece() {
-        List<int[]> empty = new ArrayList<>();
-        for (int i = 0; i < 4; i++)
-            for (int j = 0; j < 4; j++)
-                if (values[i][j] == 0)
-                    empty.add(new int[]{i, j});
-        if (!empty.isEmpty()) {
-            int[] pos = empty.get(random.nextInt(empty.size()));
+    
+    public void spawnPiece(Direction dir) {
+        List<int[]> candidates = new ArrayList<>();
+        if (dir == Direction.LEFT || dir == Direction.RIGHT) {
+            for (int y = 0; y < 4; y++) {
+                if (dir == Direction.LEFT) {
+                    for (int x = 3; x >= 0; x--) {
+                        if (values[x][y] == 0) { candidates.add(new int[]{x, y}); break; }
+                    }
+                } else {
+                    for (int x = 0; x < 4; x++) {
+                        if (values[x][y] == 0) { candidates.add(new int[]{x, y}); break; }
+                    }
+                }
+            }
+        } else if (dir == Direction.UP || dir == Direction.DOWN) {
+            for (int x = 0; x < 4; x++) {
+                if (dir == Direction.UP) {
+                    for (int y = 3; y >= 0; y--) {
+                        if (values[x][y] == 0) { candidates.add(new int[]{x, y}); break; }
+                    }
+                } else {
+                    for (int y = 0; y < 4; y++) {
+                        if (values[x][y] == 0) { candidates.add(new int[]{x, y}); break; }
+                    }
+                }
+            }
+        }
+        candidates.removeIf(Objects::isNull);
+        if (!candidates.isEmpty()) {
+            int[] pos = candidates.get(random.nextInt(candidates.size()));
             values[pos[0]][pos[1]] = random.nextDouble() < 0.9 ? 2 : 4;
         }
     }
-     
-
+   
     private Board(boolean dummy) {}
 
     public Board copy() {
@@ -146,8 +188,10 @@ public class Board implements BoardGame {
         for (int i = 0; i < 4; i++) {
             System.arraycopy(this.values[i], 0, copy.values[i], 0, 4);
         }
+        copy.prev = this.prev != null ? this.prev.copy() : null;
         return copy;
     }
+   
 
     public static Board fromJson(String json) {
         return GameState.fromJson(json, Board.class);
