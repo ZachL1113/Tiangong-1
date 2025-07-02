@@ -13,18 +13,24 @@ import com.example.demo.core.GameState;
 public class Board implements BoardGame {
     public static final int ROWS = 5, COLS = 4;
     private final List<Piece> pieces = new ArrayList<>();
+    @JsonProperty("prev")
+    private Board prev;
 
     public Board() {}
 
     @com.fasterxml.jackson.annotation.JsonCreator
-    public Board(@com.fasterxml.jackson.annotation.JsonProperty("pieces") java.util.List<Piece> pieces) {
+    public Board(@com.fasterxml.jackson.annotation.JsonProperty("pieces") java.util.List<Piece> pieces,
+                 @com.fasterxml.jackson.annotation.JsonProperty("prev") Board prev) {
         if (pieces != null) {
             this.pieces.addAll(pieces);
         }
+        this.prev = prev;
     }
 
     @JsonProperty("pieces")
     public List<BoardPiece> getPieces() { return new ArrayList<>(pieces); }
+    @JsonProperty("prev")
+    public Board getPrev() { return prev; }
     public void addPiece(Piece p) { pieces.add(p); }
     public Piece getPiece(int id) {
         return pieces.stream().filter(p -> p.getId() == id).findFirst().orElse(null);
@@ -69,11 +75,20 @@ public class Board implements BoardGame {
     }
 
     public boolean move(Integer pieceId, Direction dir) {
+        if (dir == Direction.BACK) {
+            if (this.prev == null) return false;
+            this.pieces.clear();
+            this.prev.pieces.forEach(this.pieces::add);
+            this.prev = this.prev.prev;
+            return true;
+        }
         if (pieceId == null) return false;
         Piece p = getPiece(pieceId);
         if (p != null && canMove(p, dir)) {
+            Board previous = this.copy();
             int idx = pieces.indexOf(p);
             pieces.set(idx, p.moved(dir));
+            this.prev = previous;
             return true;
         }
         return false;
@@ -88,6 +103,7 @@ public class Board implements BoardGame {
     public Board copy() {
         Board b = new Board();
         pieces.forEach(b::addPiece);
+        b.prev = this.prev != null ? this.prev.copy() : null;
         return b;
     }
 
