@@ -134,6 +134,25 @@
         .board>.h2 {
             height: calc(var(--piece-size) * 2 - 2px);
         }
+
+        .PopUp {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .popupContainer {
+            background-color: white;
+            width: 200px;
+            height: 160px;
+            text-align: center;
+        }
     </style>
 </head>
 
@@ -147,12 +166,22 @@
             <button id="D">↓</button> -->
             <div id="stepcount" style="position: absolute;top: 0;"></div>
             <div id="buttoncontainer" style="position: absolute; bottom: 0;flex-direction: column;">
-                <button id="home">Home</button>
-                <button id="level">Level</button>
+                <button class="homeButton" id="home">Home</button>
+                <button class="levelButton" id="level">Level</button>
                 <button id="back">Back</button>
             </div>
         </div>
     </div>
+    <div id="huarongdaoPopUp" class="PopUp" style="display: none;">
+        <div class="popupContainer">
+            <p id="popupStatus">Success!</p>
+            <p id="popupScore">Score: 123</p>
+            <button id="retry">Retry</button>
+            <button class="homeButton">Home</button>
+            <button class="levelButton">Level</button>
+        </div>
+    </div>
+
     <script>
         document.addEventListener("dragstart", function (e) {
             e.preventDefault();
@@ -453,6 +482,17 @@
 
             onClickMove(direction);
 
+            const x = currentBoard.pieces.find(p => p.name === "caocao").x;
+            const y = currentBoard.pieces.find(p => p.name === "caocao").y;
+
+            console.log(`caocao is at (${x}, ${y})`);
+
+            if (x === 1 && y === 3) {
+                console.log("Success!");
+                showPopup(steps);
+            }
+
+
             isDragging = false;
             activePiece = null;
         });
@@ -493,13 +533,18 @@
                 })
         })
 
-        document.getElementById("level").addEventListener("click", () => {
-            window.location.href = `huarongdao_level.html`;
-        })
+        document.querySelectorAll(".levelButton").forEach(button => {
+            button.addEventListener("click", () => {
+                window.location.href = "huarongdao_level.html";
+            });
+        });
 
-        document.getElementById("home").addEventListener("click", () => {
-            window.location.href = `../frontpage.html`;
-        })
+        document.querySelectorAll(".homeButton").forEach(button => {
+            button.addEventListener("click", () => {
+                window.location.href = "../frontpage.html";
+            });
+        });
+
         //         document.getElementById("U").addEventListener("click", () => {
         //             direction = "U";
         //             console.log(game, pieceName, direction)
@@ -538,6 +583,15 @@
         //                     }
         //                 })
         //         })
+
+        function showPopup(score) {
+            document.getElementById("popupScore").textContent = `Step: ${steps}`;
+            document.getElementById("huarongdaoPopUp").style.display = "flex";
+        }
+
+        document.getElementById("retry").addEventListener("click", () => {
+            window.location.href = `huarongdao2.0.html?level=${level}&game=${game}`;
+        });
     </script>
 
 </body>

@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-  <link rel="stylesheet" href="css/frontpage_styles.css">
+    <link rel="stylesheet" href="css/frontpage_styles.css">
 </head>
+
 <body>
     <div class="board">
         <div class="name">
@@ -10,26 +12,73 @@
         </div>
         <div class="buttoncontainer">
             <div class="gamebutton">
-                <button id = "huarongdao">Huarongdao</button>
-                <button id = "2048">2048</button>
-                <button id = "snake">snake</button>
+                <button id="huarongdao">Huarongdao</button>
+                <button id="2048">2048</button>
+                <button id="snake">snake</button>
             </div>
             <div class="functionbutton">
-                <button id = "ranking">Ranking</button>
-                <button id = "profile">Profile</button>
+                <button id="ranking">Ranking</button>
+                <button id="profile">Profile</button>
             </div>
         </div>
         <script>
+            const BASE_URL = 'http://127.0.0.1:8080';
+            /** 
+            * @param {string} game
+            * @param {number} [level]
+            * @returns {Promise<Object>}
+            */
+
+            
+
+            async function getPlayerScores(playerId) {
+                const res = await fetch(`${BASE_URL}/players/${encodeURIComponent(playerId)}/scores`);
+                if (!res.ok) throw new Error("Player scores fetch failed");
+                return await res.json();
+            }
+
+            async function getPlayerRank(playerId, game) {
+                const res = await fetch(`${BASE_URL}/players/${encodeURIComponent(playerId)}/leaderboard-rank?game=${encodeURIComponent(game)}`);
+                if (!res.ok) throw new Error("Player rank fetch failed");
+                return await res.json();
+            }
+
+            async function getHistoryScore(historyId) {
+                const res = await fetch(`${BASE_URL}/history/${encodeURIComponent(historyId)}`);
+                if (!res.ok) throw new Error("History fetch failed");
+                return await res.json();
+            }
+
             document.getElementById("huarongdao").addEventListener("click", () => {
                 window.location.href = `huarongdao/huarongdao_level.html`;
-            })
+            });
             document.getElementById("2048").addEventListener("click", () => {
                 window.location.href = `huarongdao/huarongdao2.0.html?game=2048`;
-            })
+            });
             document.getElementById("snake").addEventListener("click", () => {
                 window.location.href = `huarongdao/huarongdao2.0.html?game=snake`;
-            })
+            });
+
+            document.getElementById("ranking").addEventListener("click", async () => {
+                try {
+                    const data = await getLeaderboard("2048"); 
+                    alert("2048 排行榜:\n" + data.map((d, i) => `${i + 1}. ${d.player} - ${d.score}`).join("\n"));
+                } catch (e) {
+                    alert("排行榜加载失败: " + e.message);
+                }
+            });
+
+            document.getElementById("profile").addEventListener("click", async () => {
+                try {
+                    const scores = await getPlayerScores(playerId);
+                    const rank = await getPlayerRank(playerId, "2048"); 
+                    alert(`你的历史分数: ${scores.join(", ")}\n你在2048游戏中的排名是: ${rank}`);
+                } catch (e) {
+                    alert("个人信息加载失败: " + e.message);
+                }
+            });
         </script>
     </div>
 </body>
+
 </html>
