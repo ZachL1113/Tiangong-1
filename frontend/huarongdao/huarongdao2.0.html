@@ -174,11 +174,19 @@
     </div>
     <div id="huarongdaoPopUp" class="PopUp" style="display: none;">
         <div class="popupContainer">
-            <p id="popupStatus">Success!</p>
-            <p id="popupScore">Score: 123</p>
-            <button id="retry">Retry</button>
+            <p id="popupHuarongdaoStatus">Success!</p>
+            <p id="popupHuarongdaoScore">Score: 123</p>
+            <button class="retryButton">Retry</button>
             <button class="homeButton">Home</button>
             <button class="levelButton">Level</button>
+        </div>
+    </div>
+    <div id="2048PopUp" class="PopUp" style="display: none;">
+        <div class="popupContainer">
+            <p id="popup2048Status">Success!</p>
+            <p id="popup2048Score">Score: 123</p>
+            <button class="retryButton">Retry</button>
+            <button class="homeButton">Home</button>
         </div>
     </div>
 
@@ -287,6 +295,8 @@
         const board = document.getElementById("board");
         let attr = null;
         let steps = 0;
+        let max = 0;
+        let status = false;
 
         // document.addEventListener("dragstart", e => {
         //     e.preventDefault(); // 禁用任何拖拽行为
@@ -482,16 +492,12 @@
 
             onClickMove(direction);
 
-            const x = currentBoard.pieces.find(p => p.name === "caocao").x;
-            const y = currentBoard.pieces.find(p => p.name === "caocao").y;
-
-            console.log(`caocao is at (${x}, ${y})`);
-
-            if (x === 1 && y === 3) {
+            if (status) {
                 console.log("Success!");
-                showPopup(steps);
+                if (game === "huarongdao") {
+                    showHuarongdaoPopup(steps);
+                }
             }
-
 
             isDragging = false;
             activePiece = null;
@@ -508,12 +514,14 @@
                         currentBoard = JSON.parse(result.boardJson);
                         console.log(currentBoard);
                         printCurrentBoard(game, currentBoard);
-                        steps = steps + 1;
+                        status = result.success
+                        console.log("status: ", status)
                         if (game === "huarongdao") {
+                            steps = steps + 1;
                             document.getElementById("stepcount").textContent = `StepCount: ${steps}`;
                         }
                         if (game === "2048") {
-                            const max = Math.max(...currentBoard.cells.flat());
+                            max = Math.max(...currentBoard.cells.flat());
                             document.getElementById("stepcount").textContent = `LargestNumber: ${max}`
                         }
                     }
@@ -538,10 +546,16 @@
                 window.location.href = "huarongdao_level.html";
             });
         });
-
+        
         document.querySelectorAll(".homeButton").forEach(button => {
             button.addEventListener("click", () => {
                 window.location.href = "../frontpage.html";
+            });
+        });
+        
+        document.querySelectorAll(".retryButton").forEach(button => {
+            button.addEventListener("click", () => {
+                window.location.href = `huarongdao2.0.html?level=${level}&game=${game}`;
             });
         });
 
@@ -583,15 +597,17 @@
         //                     }
         //                 })
         //         })
-
-        function showPopup(score) {
-            document.getElementById("popupScore").textContent = `Step: ${steps}`;
+        
+        function showHuarongdaoPopup(score) {
+            document.getElementById("popupHuarongdaoScore").textContent = `Step: ${steps}`;
             document.getElementById("huarongdaoPopUp").style.display = "flex";
         }
 
-        document.getElementById("retry").addEventListener("click", () => {
-            window.location.href = `huarongdao2.0.html?level=${level}&game=${game}`;
-        });
+        function show2048Popup(score) {
+            document.getElementById("popup2048Status").textContent = `${status}`
+            document.getElementById("popup2048Score").textContent = `Largest Number: ${max}`;
+            document.getElementById("2048PopUp").style.display = "flex";
+        }
     </script>
 
 </body>

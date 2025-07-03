@@ -29,7 +29,11 @@
             * @returns {Promise<Object>}
             */
 
-            
+            async function getLeaderboard(game) {
+                const res = await fetch(`${BASE_URL}/leaderboard?game=${encodeURIComponent(game)}`);
+                if (!res.ok) throw new Error("Leaderboard fetch failed");
+                return await res.json();
+            }
 
             async function getPlayerScores(playerId) {
                 const res = await fetch(`${BASE_URL}/players/${encodeURIComponent(playerId)}/scores`);
@@ -61,20 +65,20 @@
 
             document.getElementById("ranking").addEventListener("click", async () => {
                 try {
-                    const data = await getLeaderboard("2048"); 
+                    const data = await getLeaderboard("2048");
                     alert("2048 排行榜:\n" + data.map((d, i) => `${i + 1}. ${d.player} - ${d.score}`).join("\n"));
                 } catch (e) {
-                    alert("排行榜加载失败: " + e.message);
+                    alert(e.message);
                 }
             });
 
             document.getElementById("profile").addEventListener("click", async () => {
                 try {
                     const scores = await getPlayerScores(playerId);
-                    const rank = await getPlayerRank(playerId, "2048"); 
+                    const rank = await getPlayerRank(playerId, "2048");
                     alert(`你的历史分数: ${scores.join(", ")}\n你在2048游戏中的排名是: ${rank}`);
                 } catch (e) {
-                    alert("个人信息加载失败: " + e.message);
+                    alert(e.message);
                 }
             });
         </script>
