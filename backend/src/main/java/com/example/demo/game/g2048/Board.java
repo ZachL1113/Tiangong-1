@@ -149,32 +149,28 @@ public class Board implements BoardGame {
     
     public void spawnPiece(Direction dir) {
         List<int[]> candidates = new ArrayList<>();
-        if (dir == Direction.LEFT || dir == Direction.RIGHT) {
-            for (int y = 0; y < 4; y++) {
-                if (dir == Direction.LEFT) {
-                    for (int x = 3; x >= 0; x--) {
-                        if (values[x][y] == 0) { candidates.add(new int[]{x, y}); break; }
-                    }
-                } else {
-                    for (int x = 0; x < 4; x++) {
-                        if (values[x][y] == 0) { candidates.add(new int[]{x, y}); break; }
-                    }
-                }
+        switch (dir) {
+            case LEFT -> {
+                for (int y = 0; y < 4; y++) if (values[3][y] == 0) candidates.add(new int[]{3, y});
             }
-        } else if (dir == Direction.UP || dir == Direction.DOWN) {
+            case RIGHT -> {
+                for (int y = 0; y < 4; y++) if (values[0][y] == 0) candidates.add(new int[]{0, y});
+            }
+       case UP -> {
+                for (int x = 0; x < 4; x++) if (values[x][3] == 0) candidates.add(new int[]{x, 3});
+            }
+            case DOWN -> {
+                for (int x = 0; x < 4; x++) if (values[x][0] == 0) candidates.add(new int[]{x, 0});
+            }
+            default -> {}
+        }
+        if (candidates.isEmpty()) {
             for (int x = 0; x < 4; x++) {
-                if (dir == Direction.UP) {
-                    for (int y = 3; y >= 0; y--) {
-                        if (values[x][y] == 0) { candidates.add(new int[]{x, y}); break; }
-                    }
-                } else {
-                    for (int y = 0; y < 4; y++) {
-                        if (values[x][y] == 0) { candidates.add(new int[]{x, y}); break; }
-                    }
-                }
+                for (int y = 0; y < 4; y++) {
+                    if (values[x][y] == 0) candidates.add(new int[]{x, y});
             }
         }
-        candidates.removeIf(Objects::isNull);
+            
         if (!candidates.isEmpty()) {
             int[] pos = candidates.get(random.nextInt(candidates.size()));
             values[pos[0]][pos[1]] = random.nextDouble() < 0.9 ? 2 : 4;
