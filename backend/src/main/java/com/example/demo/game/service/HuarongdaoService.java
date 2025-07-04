@@ -29,7 +29,7 @@ public class HuarongdaoService implements GameService {
         Board board = Board.fromJson(req.boardJson());
         Direction dir = Direction.fromInput(req.direction());
         boolean valid = board.move(req.pieceId(), dir);
-        return new MoveResponse(board.toJson(), valid, board.isSolved());
+        return new MoveResponse(board.toJson(), valid, board.isSolved(), null);
     }
 
 }
