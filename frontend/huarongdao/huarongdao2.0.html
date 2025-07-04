@@ -164,7 +164,8 @@
             <button id="R">→</button>
             <button id="U">↑</button>
             <button id="D">↓</button> -->
-            <div id="stepcount" style="position: absolute;top: 0;"></div>
+            <div id="stepcount" style="position: absolute;top: 0;width: 50px;"></div>
+            <div id="timer" style="position: absolute;top: 10px;width: 50px;"></div>
             <div id="buttoncontainer" style="position: absolute; bottom: 0;flex-direction: column;">
                 <button class="homeButton" id="home">Home</button>
                 <button class="levelButton" id="level">Level</button>
@@ -297,7 +298,14 @@
         let steps = 0;
         let max = 0;
         let status = false;
-
+        let timerInterval = null;
+        let startTime = null;
+        let isTiming = false;
+        let elapsedMs = 0;
+        let totalSeconds = 0;
+        let minutes = 0;
+        let seconds = 0;
+        let formattedTime = '';
         // document.addEventListener("dragstart", e => {
         //     e.preventDefault(); // 禁用任何拖拽行为
         // });
@@ -450,6 +458,7 @@
             document.getElementById("back").style.display = (game === "huarongdao") ? "block" : "none";
             document.getElementById("level").style.display = (game === "huarongdao") ? "block" : "none";
             await changeGameType(game, level);
+            timeStart();
         })();
 
         if (game !== "huarongdao") {
@@ -495,7 +504,8 @@
             if (status) {
                 console.log("Success!");
                 if (game === "huarongdao") {
-                    showHuarongdaoPopup(steps);
+                    timeStop();
+                    showHuarongdaoPopup(steps, formattedTime);
                 }
             }
 
@@ -518,7 +528,7 @@
                         console.log("status: ", status)
                         if (game === "huarongdao") {
                             steps = steps + 1;
-                            document.getElementById("stepcount").textContent = `StepCount: ${steps}`;
+                            document.getElementById("stepcount").textContent = `Step: ${steps}`;
                         }
                         if (game === "2048") {
                             max = Math.max(...currentBoard.cells.flat());
@@ -536,7 +546,7 @@
                         console.log(currentBoard);
                         printCurrentBoard(game, currentBoard);
                         steps = steps - 1;
-                        document.getElementById("stepcount").textContent = `StepCount: ${steps}`;
+                        document.getElementById("stepcount").textContent = `Step: ${steps}`;
                     }
                 })
         })
@@ -546,13 +556,13 @@
                 window.location.href = "huarongdao_level.html";
             });
         });
-        
+
         document.querySelectorAll(".homeButton").forEach(button => {
             button.addEventListener("click", () => {
                 window.location.href = "../frontpage.html";
             });
         });
-        
+
         document.querySelectorAll(".retryButton").forEach(button => {
             button.addEventListener("click", () => {
                 window.location.href = `huarongdao2.0.html?level=${level}&game=${game}`;
@@ -597,9 +607,9 @@
         //                     }
         //                 })
         //         })
-        
-        function showHuarongdaoPopup(score) {
-            document.getElementById("popupHuarongdaoScore").textContent = `Step: ${steps}`;
+
+        function showHuarongdaoPopup(steps, time) {
+            document.getElementById("popupHuarongdaoScore").textContent = `Step: ${steps} Time: ${time} Score: ${1000 - steps * totalSeconds}`;
             document.getElementById("huarongdaoPopUp").style.display = "flex";
         }
 
@@ -607,6 +617,31 @@
             document.getElementById("popup2048Status").textContent = `${status}`
             document.getElementById("popup2048Score").textContent = `Largest Number: ${max}`;
             document.getElementById("2048PopUp").style.display = "flex";
+        }
+
+        function timeStart() {
+            if (!isTiming) {
+                startTime = Date.now();
+                timerInterval = setInterval(timeUpdate, 100);
+                isTiming = true;
+            }
+        }
+
+        function timeUpdate() {
+            elapsedMs = Date.now() - startTime;
+            totalSeconds = Math.floor(elapsedMs / 1000);
+            minutes = Math.floor(totalSeconds / 60);
+            seconds = totalSeconds % 60;
+            formattedTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            document.getElementById("timer").innerText = `Time: ${formattedTime}`;
+        }
+
+
+        function timeStop() {
+            if (isTiming) {
+                clearInterval(timerInterval);
+                isTiming = false;
+            }
         }
     </script>
 
