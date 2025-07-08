@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .login-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .welcome {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        input {
+            padding: 0.5rem;
+            font-size: 1rem;
+            margin-top: 1rem;
+        }
+
+        button {
+            margin-top: 1rem;
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+            border: none;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 0.5rem;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-container">
+        <div id="welcome" class="welcome">Welcome back, <span id="playerName"></span>!</div>
+
+        <div id="namePrompt" class="hidden">
+            <div class="welcome">Enter your nickname to start:</div>
+            <input type="text" id="nicknameInput" placeholder="Your nickname" />
+            <br>
+            <button onclick="createNewPlayer()">Start</button>
+        </div>
+    </div>
+
+    <script>
+        function savePlayerLocally(player) {
+            localStorage.setItem("player", JSON.stringify(player));
+        }
+
+        function loadPlayerFromLocal() {
+            const data = localStorage.getItem("player");
+            return data ? JSON.parse(data) : null;
+        }
+
+        function createNewPlayer() {
+            const nickname = document.getElementById("nicknameInput").value.trim();
+            if (!nickname) {
+                alert("Please enter a nickname.");
+                return;
+            }
+
+            const player = {
+                id: Date.now(),
+                name: nickname,
+                level: 1,
+                score: 0,
+                gamesPlayed: 0
+            };
+
+            fetch("/players", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(player)
+            })
+                .then(response => {
+                    if (!response.ok) throw new Error("Player creation failed.");
+                    savePlayerLocally(player);
+                    showWelcome(player.name);
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    alert("Failed to create player.");
+                });
+        }
+
+        function showWelcome(name) {
+            document.getElementById("playerName").textContent = name;
+            document.getElementById("welcome").classList.remove("hidden");
+            document.getElementById("namePrompt").classList.add("hidden");
+        }
+
+        // 初始化
+        window.onload = function () {
+            const player = loadPlayerFromLocal();
+            if (player) {
+                showWelcome(player.name);
+                setTimeout(() => {
+                    window.location.replace("frontpage.html");
+                }, 1000);
+            } else {
+                document.getElementById("welcome").classList.add("hidden");
+                document.getElementById("namePrompt").classList.remove("hidden");
+            }
+        }
+    </script>
+</body>
+
+</html>
