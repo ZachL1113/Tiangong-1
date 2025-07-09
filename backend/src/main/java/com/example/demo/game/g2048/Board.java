@@ -156,7 +156,7 @@ public class Board implements BoardGame {
             case RIGHT -> {
                 for (int y = 0; y < 4; y++) if (values[0][y] == 0) candidates.add(new int[]{0, y});
             }
-       case UP -> {
+            case UP -> {
                 for (int x = 0; x < 4; x++) if (values[x][3] == 0) candidates.add(new int[]{x, 3});
             }
             case DOWN -> {
@@ -167,7 +167,10 @@ public class Board implements BoardGame {
         if (candidates.isEmpty()) {
             for (int x = 0; x < 4; x++) {
                 for (int y = 0; y < 4; y++) {
-                    if (values[x][y] == 0) candidates.add(new int[]{x, y});
+                     if (values[x][y] == 0) {
+                        candidates.add(new int[]{x, y});
+                    }
+                }
             }
         }
             
