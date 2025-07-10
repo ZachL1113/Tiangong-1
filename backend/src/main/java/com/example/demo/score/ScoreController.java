@@ -47,4 +47,21 @@ public class ScoreController {
         }
         return repo.save(score);
     }
+
+    @PutMapping("/scores/{id}")
+    public Score updateScore(@PathVariable Long id, @RequestBody Score updated) {
+        Score existing = repo.findById(id).orElseThrow();
+        existing.setScore(updated.getScore());
+        existing.setGame(updated.getGame());
+        existing.setPlayer(updated.getPlayer());
+        if (updated.getRecordedAt() != null) {
+            existing.setRecordedAt(updated.getRecordedAt());
+        }
+        return repo.save(existing);
+    }
+
+    @DeleteMapping("/scores/{id}")
+    public void deleteScore(@PathVariable Long id) {
+        repo.deleteById(id);
+    }
 }

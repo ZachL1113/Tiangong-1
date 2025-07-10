@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@CrossOrigin
 @RequestMapping("/situations")
 public class StateController {
 
@@ -48,7 +49,7 @@ public class StateController {
         s.setGame(dto.game());
         s.setLevel(dto.level());
         s.setPlayer(dto.player());
-        s.setSituationJson(GameStateFactory.toJson(dto.board()));
+        s.setSituationJson(dto.boardJson());
         return repo.save(s);
     }
 
