@@ -17,6 +17,8 @@ public class Board implements BoardGame {
     private final int[][] values = new int[4][4];
     @JsonProperty("prev")
     private Board prev;
+    @JsonProperty("failed")
+    private boolean failed = false;
     private final Random random = new Random();
 
     public Board() {
@@ -26,11 +28,13 @@ public class Board implements BoardGame {
 
     @com.fasterxml.jackson.annotation.JsonCreator
         public Board(@com.fasterxml.jackson.annotation.JsonProperty("cells") int[][] cells,
-                 @com.fasterxml.jackson.annotation.JsonProperty("prev") Board prev) {
+                 @com.fasterxml.jackson.annotation.JsonProperty("prev") Board prev,
+                 @com.fasterxml.jackson.annotation.JsonProperty("failed") Boolean failed) {
         for (int i = 0; i < 4 && cells != null && i < cells.length; i++) {
             System.arraycopy(cells[i], 0, this.values[i], 0, Math.min(cells[i].length, 4));
         }
         this.prev = prev;
+        this.failed = failed != null && failed;
     }
 
     public int get(int x, int y) {
@@ -44,6 +48,9 @@ public class Board implements BoardGame {
 
     @JsonProperty("prev")
     public Board getPrev() { return prev; }
+
+    @JsonProperty("failed")
+    public boolean getFailed() { return failed; }
 
     @JsonProperty("pieces")
     public List<BoardPiece> getPieces() {
@@ -89,7 +96,10 @@ public class Board implements BoardGame {
         boolean changed = !Arrays.deepEquals(before, values);
         if (changed) {
             this.prev = previous;
-            spawnPiece(dir);
+            boolean spawned = spawnPiece(dir);
+            if (!spawned) {
+                this.failed = true;
+            }
         }
         return changed;
     }
@@ -140,6 +150,7 @@ public class Board implements BoardGame {
 
     @com.fasterxml.jackson.annotation.JsonIgnore
     public boolean isFailed() {
+        if (failed) return true;
         for (Direction d : Direction.values()) {
             Board copy = this.copy();
             if (copy.move(d)) return false;
@@ -147,7 +158,7 @@ public class Board implements BoardGame {
         return true;
     }
     
-    public void spawnPiece(Direction dir) {
+    public boolean spawnPiece(Direction dir) {
         List<int[]> candidates = new ArrayList<>();
         switch (dir) {
             case LEFT -> {
@@ -164,20 +175,10 @@ public class Board implements BoardGame {
             }
             default -> {}
         }
-        if (candidates.isEmpty()) {
-            for (int x = 0; x < 4; x++) {
-                for (int y = 0; y < 4; y++) {
-                     if (values[x][y] == 0) {
-                        candidates.add(new int[]{x, y});
-                    }
-                }
-            }
-        }
-            
-        if (!candidates.isEmpty()) {
-            int[] pos = candidates.get(random.nextInt(candidates.size()));
-            values[pos[0]][pos[1]] = random.nextDouble() < 0.9 ? 2 : 4;
-        }
+       if (candidates.isEmpty()) return false;
+        int[] pos = candidates.get(random.nextInt(candidates.size()));
+        values[pos[0]][pos[1]] = random.nextDouble() < 0.9 ? 2 : 4;
+        return true;
     }
    
     private Board(boolean dummy) {}
@@ -188,6 +189,7 @@ public class Board implements BoardGame {
             System.arraycopy(this.values[i], 0, copy.values[i], 0, 4);
         }
         copy.prev = this.prev != null ? this.prev.copy() : null;
+        copy.failed = this.failed;
         return copy;
     }
    
