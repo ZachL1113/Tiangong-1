@@ -1,4 +1,4 @@
-package com.example.demo.score.dto;
+package com.example.demo.score；
 
 import java.time.LocalDateTime;
 
