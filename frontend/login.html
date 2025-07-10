@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="UTF-8">
     <style>
@@ -65,6 +66,7 @@
             localStorage.setItem("player", JSON.stringify(player));
         }
 
+
         function loadPlayerFromLocal() {
             const data = localStorage.getItem("player");
             return data ? JSON.parse(data) : null;
@@ -77,31 +79,31 @@
                 return;
             }
 
-            const player = {
-                id: Date.now(),
-                name: nickname,
-                level: 1,
-                score: 0,
-                gamesPlayed: 0
+            const playerData = {
+                name: nickname
             };
 
-            fetch("/players", {
+            fetch("http://127.0.0.1:8080/players", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify(player)
+                body: JSON.stringify(playerData)
             })
                 .then(response => {
-                    if (!response.ok) throw new Error("Player creation failed.");
-                    savePlayerLocally(player);
+                    if (!response.ok) return response.json().then(err => { throw new Error(JSON.stringify(err)); });
+                    return response.json();
+                })
+                .then(player => {
+                    savePlayerLocally(player);  // player 里包含后端返回的 id 和其他字段
                     showWelcome(player.name);
                 })
                 .catch(error => {
                     console.error("Error:", error);
-                    alert("Failed to create player.");
+                    alert("Failed to create player: " + error.message);
                 });
         }
+
 
         function showWelcome(name) {
             document.getElementById("playerName").textContent = name;
