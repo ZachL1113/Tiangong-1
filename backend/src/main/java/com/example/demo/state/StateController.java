@@ -49,7 +49,7 @@ public class StateController {
         s.setGame(dto.game());
         s.setLevel(dto.level());
         s.setPlayer(dto.player());
-        s.setSituationJson(dto.boardJson());
+        s.setSituationJson(GameStateFactory.toJson(dto.board()));
         return repo.save(s);
     }
 
