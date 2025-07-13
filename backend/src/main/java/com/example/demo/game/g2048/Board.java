@@ -24,8 +24,8 @@ public class Board implements BoardGame {
     private final Random random = new Random();
 
     public Board() {
-        spawnPiece(Direction.UP);
-        spawnPiece(Direction.UP);
+        spawnPiece(lastDir);
+        spawnPiece(lastDir);
     }
 
     @com.fasterxml.jackson.annotation.JsonCreator
