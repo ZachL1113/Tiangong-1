@@ -170,23 +170,24 @@ public class Board implements BoardGame {
     }
     
     public boolean spawnPiece(Direction dir) {
+        Direction edge = dir.opposite();
         List<int[]> candidates = new ArrayList<>();
-        switch (dir) {
+        switch (egde) {
             case LEFT -> {
-                for (int y = 0; y < 4; y++) if (values[3][y] == 0) candidates.add(new int[]{3, y});
-            }
-            case RIGHT -> {
                 for (int y = 0; y < 4; y++) if (values[0][y] == 0) candidates.add(new int[]{0, y});
             }
-            case UP -> {
-                for (int x = 0; x < 4; x++) if (values[x][3] == 0) candidates.add(new int[]{x, 3});
+            case RIGHT -> {
+                for (int y = 0; y < 4; y++) if (values[3][y] == 0) candidates.add(new int[]{3, y});
             }
-            case DOWN -> {
+            case UP -> {
                 for (int x = 0; x < 4; x++) if (values[x][0] == 0) candidates.add(new int[]{x, 0});
             }
-            default -> {}
+            case DOWN -> {
+                for (int x = 0; x < 4; x++) if (values[x][3] == 0) candidates.add(new int[]{x, 3});
+            }
+            case BACK -> {}
         }
-       if (candidates.isEmpty()) return false;
+        if (candidates.isEmpty()) return false;
         int[] pos = candidates.get(random.nextInt(candidates.size()));
         values[pos[0]][pos[1]] = random.nextDouble() < 0.9 ? 2 : 4;
         return true;
