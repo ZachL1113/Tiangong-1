@@ -1,7 +1,18 @@
 package com.example.demo.core;
 
 public enum Direction {
-    UP, DOWN, LEFT, RIGHT,BACK;
+    UP, DOWN, LEFT, RIGHT, BACK;
+    
+    public Direction opposite() {
+        return switch (this) {
+            case UP -> DOWN;
+            case DOWN -> UP;
+            case LEFT -> RIGHT;
+            case RIGHT -> LEFT;
+            case BACK -> BACK;
+        };
+    }
+    
     public static Direction fromInput(String in) {
         if (in == null) {
             throw new IllegalArgumentException("input must not be null");
