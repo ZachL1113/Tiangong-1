@@ -172,7 +172,7 @@ public class Board implements BoardGame {
     public boolean spawnPiece(Direction dir) {
         Direction edge = dir.opposite();
         List<int[]> candidates = new ArrayList<>();
-        switch (egde) {
+        switch (edge) {
             case LEFT -> {
                 for (int y = 0; y < 4; y++) if (values[0][y] == 0) candidates.add(new int[]{0, y});
             }
