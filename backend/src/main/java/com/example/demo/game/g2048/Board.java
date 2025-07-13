@@ -19,6 +19,8 @@ public class Board implements BoardGame {
     private Board prev;
     @JsonProperty("failed")
     private boolean failed = false;
+    @JsonProperty("lastDir")
+    private Direction lastDir = Direction.UP;
     private final Random random = new Random();
 
     public Board() {
@@ -29,12 +31,14 @@ public class Board implements BoardGame {
     @com.fasterxml.jackson.annotation.JsonCreator
         public Board(@com.fasterxml.jackson.annotation.JsonProperty("cells") int[][] cells,
                  @com.fasterxml.jackson.annotation.JsonProperty("prev") Board prev,
-                 @com.fasterxml.jackson.annotation.JsonProperty("failed") Boolean failed) {
+                 @com.fasterxml.jackson.annotation.JsonProperty("failed") Boolean failed,
+                 @com.fasterxml.jackson.annotation.JsonProperty("lastDir") Direction lastDir) {
         for (int i = 0; i < 4 && cells != null && i < cells.length; i++) {
             System.arraycopy(cells[i], 0, this.values[i], 0, Math.min(cells[i].length, 4));
         }
         this.prev = prev;
         this.failed = failed != null && failed;
+        this.lastDir = lastDir != null ? lastDir : Direction.UP;
     }
 
     public int get(int x, int y) {
@@ -51,6 +55,9 @@ public class Board implements BoardGame {
 
     @JsonProperty("failed")
     public boolean getFailed() { return failed; }
+
+    @JsonProperty("lastDir")
+    public Direction getLastDir() { return lastDir; }
 
     @JsonProperty("pieces")
     public List<BoardPiece> getPieces() {
@@ -78,9 +85,12 @@ public class Board implements BoardGame {
     public boolean move(Integer pieceId, Direction dir) {
         if (dir == Direction.BACK) {
             if (this.prev == null) return false;
+            Board previousBoard = this.prev;
             for (int i = 0; i < 4; i++)
-                System.arraycopy(this.prev.values[i], 0, values[i], 0, 4);
-            this.prev = this.prev.prev;
+                System.arraycopy(previousBoard.values[i], 0, values[i], 0, 4);
+            this.failed = previousBoard.failed;
+            this.lastDir = previousBoard.lastDir;
+            this.prev = previousBoard.prev;
             return true;
         }
 
@@ -100,6 +110,7 @@ public class Board implements BoardGame {
             if (!spawned) {
                 this.failed = true;
             }
+            this.lastDir = dir;
         }
         return changed;
     }
@@ -190,6 +201,7 @@ public class Board implements BoardGame {
         }
         copy.prev = this.prev != null ? this.prev.copy() : null;
         copy.failed = this.failed;
+        copy.lastDir = this.lastDir;
         return copy;
     }
    
