@@ -95,10 +95,8 @@
                     return response.json();
                 })
                 .then(player => {
-                    savePlayerLocally(player);  // 本地保存
-                    showWelcome(player.name);   // 界面显示欢迎信息
-
-                    // ✅ 注册成功后 1 秒跳转
+                    savePlayerLocally(player); 
+                    showWelcome(player.name); 
                     setTimeout(() => {
                         window.location.replace("frontpage.html");
                     }, 1000);
@@ -108,8 +106,6 @@
                     alert("Failed to create player: " + error.message);
                 });
         }
-
-
 
         function showWelcome(name) {
             document.getElementById("playerName").textContent = name;
