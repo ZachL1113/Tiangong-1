@@ -42,6 +42,7 @@ public class ScoreController {
 
     @PostMapping("/scores")
     public Score addScore(@RequestBody Score score) {
+        score.setId(null);
         if (score.getRecordedAt() == null) {
             score.setRecordedAt(java.time.LocalDateTime.now());
         }
