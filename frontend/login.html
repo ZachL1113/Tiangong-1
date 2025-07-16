@@ -64,6 +64,7 @@
     <script>
         function savePlayerLocally(player) {
             localStorage.setItem("player", JSON.stringify(player));
+            console.log(player,"======1");
         }
 
 
@@ -97,9 +98,9 @@
                 .then(player => {
                     savePlayerLocally(player); 
                     showWelcome(player.name); 
-                    setTimeout(() => {
-                        window.location.replace("frontpage.html");
-                    }, 1000);
+                    // setTimeout(() => {
+                    //     window.location.replace("frontpage.html");
+                    // }, 1000);
                 })
                 .catch(error => {
                     console.error("Error:", error);

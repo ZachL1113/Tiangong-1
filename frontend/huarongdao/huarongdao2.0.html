@@ -634,6 +634,11 @@
         //                 })
         //         })
 
+        function loadPlayerFromLocal() {
+            const data = localStorage.getItem("player");
+            return data ? JSON.parse(data) : null;
+        }
+
         async function showHuarongdaoPopup(steps, time) {
             const score = 1000 - steps * totalSeconds;
 
@@ -642,7 +647,9 @@
 
             document.getElementById("huarongdaoPopUp").style.display = "flex";
 
-            const playerId = localStorage.getItem("playerId");
+            const playerId = loadPlayerFromLocal().id
+            console.log(playerId, "=====")
+            console.log(Date())
             const now = new Date().toISOString();
 
             try {
