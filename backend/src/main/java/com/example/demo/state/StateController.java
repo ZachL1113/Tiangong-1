@@ -2,9 +2,11 @@ package com.example.demo.state;
 
 import com.example.demo.player.Player;
 import com.example.demo.core.GameState;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.example.demo.core.GameStateFactory;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @CrossOrigin
@@ -12,6 +14,7 @@ import java.util.List;
 public class StateController {
 
     private final StateRepository repo;
+    private final ObjectMapper mapper = new ObjectMapper();
 
     public StateController(StateRepository repo) {
         this.repo = repo;
@@ -23,7 +26,11 @@ public class StateController {
         s.setGame(dto.game());
         s.setLevel(dto.level());
         s.setPlayer(dto.player());
-        s.setSituationJson(GameStateFactory.toJson(dto.board()));
+        try {
+            s.setSituationJson(mapper.writeValueAsString(dto.board()));
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to serialize board", e);
+        }
         return repo.save(s);
     }
 
@@ -49,7 +56,11 @@ public class StateController {
         s.setGame(dto.game());
         s.setLevel(dto.level());
         s.setPlayer(dto.player());
-        s.setSituationJson(GameStateFactory.toJson(dto.board()));
+        try {
+            s.setSituationJson(mapper.writeValueAsString(dto.board()));
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to serialize board", e);
+        }
         return repo.save(s);
     }
 
@@ -58,5 +69,5 @@ public class StateController {
         repo.deleteById(id);
     }
 
-    public record SituationDTO(String game, int level, Player player, GameState board) {}
+    public record SituationDTO(String game, int level, Player player, Map<String, Object> board) {}
 }
