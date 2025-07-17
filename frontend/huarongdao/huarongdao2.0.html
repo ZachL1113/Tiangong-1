@@ -7,7 +7,7 @@
     <!-- <script type="module" src="../js/backend.js"></script> -->
     <style>
         :root {
-            --piece-size: 10vmin;
+            --piece-size: 8vmin;
             --piece-count-width: 9;
             --piece-count-height: 9;
             --in-debug-mode: 0;
@@ -639,6 +639,41 @@
             return data ? JSON.parse(data) : null;
         }
 
+        function createNewPlayer() {
+            const nickname = document.getElementById("nicknameInput").value.trim();
+            if (!nickname) {
+                alert("Please enter a nickname.");
+                return;
+            }
+
+            const playerData = {
+                name: nickname
+            };
+
+            fetch("http://127.0.0.1:8080/players", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(playerData)
+            })
+                .then(response => {
+                    if (!response.ok) return response.json().then(err => { throw new Error(JSON.stringify(err)); });
+                    return response.json();
+                })
+                .then(player => {
+                    savePlayerLocally(player);
+                    showWelcome(player.name);
+                    // setTimeout(() => {
+                    //     window.location.replace("frontpage.html");
+                    // }, 1000);
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    alert("Failed to create player: " + error.message);
+                });
+        }
+
         async function showHuarongdaoPopup(steps, time) {
             const score = 1000 - steps * totalSeconds;
 
@@ -647,6 +682,10 @@
 
             document.getElementById("huarongdaoPopUp").style.display = "flex";
 
+            localplayer = loadPlayerFromLocal()
+            if (localplayer === null) {
+                window.location.replace("../login.html")
+            }
             const playerId = loadPlayerFromLocal().id
             console.log(playerId, "=====")
             console.log(Date())
