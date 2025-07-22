@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Player Profile</title>
+    <style>
+        body {
+            margin: 2rem;
+            background-color: #f0f2f5;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        table {
+            width: 80%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            background-color: #fff;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f4f4f4;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Player Profile</h1>
+    <p><strong>Nickname:</strong> <span id="playerName"></span></p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Game</th>
+                <th>Current Rank</th>
+                <th>Highest Score</th>
+            </tr>
+        </thead>
+        <tbody id="profileTableBody">
+            <!-- Dynamically filled -->
+        </tbody>
+    </table>
+
+    <script>
+        const baseUrl = "http://127.0.0.1:8080";
+        const playerId = loadPlayerFromLocal().id
+        const games = ["2048", "huarongdao"];
+
+        function loadPlayerFromLocal() {
+            const data = localStorage.getItem("player");
+            return data ? JSON.parse(data) : null;
+        }
+
+        async function fetchPlayer() {
+            const res = await fetch(`${baseUrl}/players/${playerId}`);
+            return await res.json();
+        }
+
+        async function fetchRank(game) {
+            const res = await fetch(`${baseUrl}/players/${playerId}/leaderboard-rank?game=${game}`);
+            return await res.text();
+        }
+
+        async function fetchScores(game) {
+            const res = await fetch(`${baseUrl}/players/${playerId}/scores`);
+            const data = await res.json();
+            const scores = data.filter(s => s.game === game).map(s => s.score);
+            return scores.length ? Math.max(...scores) : "—";
+        }
+
+        async function loadProfile() {
+            const player = await fetchPlayer();
+            document.getElementById("playerName").textContent = player.name;
+
+            const tbody = document.getElementById("profileTableBody");
+            tbody.innerHTML = "";
+
+            for (const game of games) {
+                const [rank, highScore] = await Promise.all([
+                    fetchRank(game),
+                    fetchScores(game)
+                ]);
+
+                const row = document.createElement("tr");
+                row.innerHTML = `
+          <td>${game}</td>
+          <td>${rank}</td>
+          <td>${highScore}</td>
+        `;
+                tbody.appendChild(row);
+            }
+        }
+        loadProfile();
+    </script>
+</body>
+
+</html>
