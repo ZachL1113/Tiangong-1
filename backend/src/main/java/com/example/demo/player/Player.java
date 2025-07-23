@@ -17,6 +17,10 @@ public class Player{
     private int score;
     private int gamesPlayed;
 
+    private String provider;
+    private String providerId;
+    private String email;
+
     public Player() {}
 
 }
