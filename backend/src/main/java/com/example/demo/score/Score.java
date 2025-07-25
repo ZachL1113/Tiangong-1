@@ -16,10 +16,12 @@ public class Score {
     private Player player;
 
     private String game;
+    private Integer level;
     private int score;
     private LocalDateTime recordedAt;
 
     public Score() {
         this.recordedAt = LocalDateTime.now();
+        this.level = 0;
     }
 }
