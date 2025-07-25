@@ -14,8 +14,12 @@ public class ScoreController {
     }
 
     @GetMapping("/leaderboard")
-    public List<Score> leaderboard(@RequestParam String game) {
-        return repo.findByGameOrderByScoreDesc(game);
+    public List<Score> leaderboard(@RequestParam String game,
+                                   @RequestParam(required = false) Integer level) {
+        if (level != null) {
+            return repo.findBestScoresByGameAndLevel(game, level);
+        }
+        return repo.findBestScoresByGame(game);
     }
 
     @GetMapping("/players/{id}/scores")
@@ -23,8 +27,12 @@ public class ScoreController {
         return repo.findByPlayerIdOrderByRecordedAtDesc(id);
     }
     @GetMapping("/players/{id}/leaderboard-rank")
-    public int playerRank(@PathVariable Long id, @RequestParam String game) {
-        List<Score> scores = repo.findByGameOrderByScoreDesc(game);
+    public int playerRank(@PathVariable Long id,
+                          @RequestParam String game,
+                          @RequestParam(required = false) Integer level) {
+        List<Score> scores = (level != null)
+                ? repo.findBestScoresByGameAndLevel(game, level)
+                : repo.findBestScoresByGame(game);
         int rank = 1;
         for (Score s : scores) {
             if (s.getPlayer() != null && id.equals(s.getPlayer().getId())) {
@@ -46,6 +54,9 @@ public class ScoreController {
         if (score.getRecordedAt() == null) {
             score.setRecordedAt(java.time.LocalDateTime.now());
         }
+        if (score.getLevel() == null) {
+            score.setLevel(0);
+        }
         return repo.save(score);
     }
 
@@ -55,6 +66,7 @@ public class ScoreController {
         existing.setScore(updated.getScore());
         existing.setGame(updated.getGame());
         existing.setPlayer(updated.getPlayer());
+        existing.setLevel(updated.getLevel());
         if (updated.getRecordedAt() != null) {
             existing.setRecordedAt(updated.getRecordedAt());
         }
