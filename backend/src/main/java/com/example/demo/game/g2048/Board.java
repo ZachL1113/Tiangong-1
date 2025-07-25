@@ -83,7 +83,7 @@ public class Board implements BoardGame {
     @JsonProperty("score")
     public int getScore() {
         int max = 0;
-         for (int[] row : values) {
+        for (int[] row : values) {
             for (int v : row) max = Math.max(max, v);
         }
         return max;
@@ -91,38 +91,44 @@ public class Board implements BoardGame {
 
     @Override
     public boolean move(Integer pieceId, Direction dir) {
+
         if (dir == Direction.BACK) {
-            if (this.prev == null) return false;
-            Board previousBoard = this.prev;
+            if (prev == null) return false;
+            Board p = prev;
             for (int i = 0; i < 4; i++) {
-                System.arraycopy(previousBoard.values[i], 0, this.values[i], 0, 4);
+                System.arraycopy(p.values[i], 0, values[i], 0, 4);
             }
-            this.failed = previousBoard.failed;
-            this.lastDir = previousBoard.lastDir;
-            this.prev = previousBoard.prev;
+            failed  = p.failed;
+            lastDir = p.lastDir;
+            prev    = p.prev;
             return true;
         }
 
-        Board previous = this.copy();
-        int[][] before = copyGrid();
+
+        Board previous = copy();
+
+
         switch (dir) {
-           case LEFT -> slide(false, false);
-            case RIGHT -> slide(true, false);
-            case UP -> slide(false, true);
-            case DOWN -> slide(true, true);
-            default -> {
-            }
+            case LEFT  -> slide(false, false);
+            case RIGHT -> slide(true,  false);
+            case UP    -> slide(false, true);
+            case DOWN  -> slide(true,  true);
+            default    -> {}
         }
-        boolean changed = !Arrays.deepEquals(before, values);
-        this.prev = previous;
+
+        prev = previous;
+
         boolean spawned = spawnPiece(dir);
         if (!spawned) {
-            this.failed = true;
+            failed  = true;
+            lastDir = dir;
+            return false;
         }
-       this.lastDir = dir;
-       return changed || spawned;
+        
+        failed  = false;
+        lastDir = dir;
+        return true;
     }
-   
 
     private void slide(boolean reverse, boolean vertical) {
         for (int i = 0; i < 4; i++) {
@@ -134,77 +140,101 @@ public class Board implements BoardGame {
             int[] processed = processLine(line);
             for (int j = 0; j < 4; j++) {
                 if (vertical) values[j][i] = processed[reverse ? 3 - j : j];
-                else values[i][j] = processed[reverse ? 3 - j : j];
+                else         values[i][j] = processed[reverse ? 3 - j : j];
             }
         }
     }
 
+  
     private static int[] processLine(int[] line) {
-        List<Integer> result = new ArrayList<>();
-         for (int v : line) if (v != 0) result.add(v);
-        boolean merged;
-        do {
-            merged = false;
-            for (int i = 0; i < result.size() - 1; i++) {
-                if (result.get(i).equals(result.get(i + 1))) {
-                    result.set(i, result.get(i) * 2);
-                    result.remove(i + 1);
-                    merged = true;
-                }
-            }
-        } while (merged);
-        while (result.size() < 4) result.add(0);
-        return result.stream().mapToInt(i -> i).toArray();
-    }
-
-    private int[][] copyGrid() {
-        int[][] copy = new int[4][4];
-        for (int i = 0; i < 4; i++) {
-            System.arraycopy(values[i], 0, copy[i], 0, 4);
+        List<Integer> list = new ArrayList<>();
+        for (int v : line) {
+            if (v != 0) list.add(v);
         }
-        return copy;
+      
+        List<Integer> merged = new ArrayList<>();
+        for (int i = 0; i < list.size(); ) {
+            if (i + 1 < list.size() && list.get(i).equals(list.get(i + 1))) {
+                merged.add(list.get(i) * 2);
+                i += 2;
+            } else {
+                merged.add(list.get(i));
+                i += 1;
+            }
+        }
+    
+        while (merged.size() < 4) {
+            merged.add(0);
+        }
+
+        int[] result = new int[4];
+        for (int i = 0; i < 4; i++) {
+            result[i] = merged.get(i);
+        }
+        return result;
     }
 
     @Override
     @JsonIgnore
     public boolean isSolved() {
-       for (int[] row : values) {
+        for (int[] row : values) {
             for (int v : row) if (v == 2048) return true;
         }
         return false;
     }
 
-
-    @Override
     @JsonIgnore
     public boolean isFailed() {
         return failed;
     }
-    
+
+
     public boolean spawnPiece(Direction dir) {
-        Direction edge = dir.opposite();
-        List<int[]> candidates = new ArrayList<>();
-        switch (edge) {
-            case LEFT -> {
-                for (int y = 0; y < 4; y++) if (values[0][y] == 0) candidates.add(new int[]{0, y});
+    Direction edge = dir.opposite();
+    List<int[]> candidates = new ArrayList<>();
+
+    switch (edge) {
+        case LEFT:
+            for (int row = 0; row < 4; row++) {
+                if (values[row][0] == 0) {
+                    candidates.add(new int[]{row, 0});
+                }
             }
-            case RIGHT -> {
-                for (int y = 0; y < 4; y++) if (values[3][y] == 0) candidates.add(new int[]{3, y});
+            break;
+        case RIGHT:
+            for (int row = 0; row < 4; row++) {
+                if (values[row][3] == 0) {
+                    candidates.add(new int[]{row, 3});
+                }
             }
-            case UP -> {
-                for (int x = 0; x < 4; x++) if (values[x][0] == 0) candidates.add(new int[]{x, 0});
+            break;
+        case UP:
+            for (int col = 0; col < 4; col++) {
+                if (values[0][col] == 0) {
+                    candidates.add(new int[]{0, col});
+                }
             }
-            case DOWN -> {
-                for (int x = 0; x < 4; x++) if (values[x][3] == 0) candidates.add(new int[]{x, 3});
+            break;
+        case DOWN:
+            for (int col = 0; col < 4; col++) {
+                if (values[3][col] == 0) {
+                    candidates.add(new int[]{3, col});
+                }
             }
-            case BACK -> {}
-        }
-        if (candidates.isEmpty()) return false;
-        int[] pos = candidates.get(random.nextInt(candidates.size()));
-        values[pos[0]][pos[1]] = random.nextDouble() < 0.9 ? 2 : 4;
-        return true;
+            break;
+        default:
+            break;
     }
-   
+
+    if (candidates.isEmpty()) {
+        return false;
+    }
+
+    int[] pos = candidates.get(random.nextInt(candidates.size()));
+    values[pos[0]][pos[1]] = random.nextDouble() < 0.9 ? 2 : 4;
+    return true;
+}
+
     private Board(boolean dummy) {}
 
     public Board copy() {
@@ -217,7 +247,6 @@ public class Board implements BoardGame {
         copy.lastDir = this.lastDir;
         return copy;
     }
-   
 
     public static Board fromJson(String json) {
         return GameState.fromJson(json, Board.class);
@@ -228,3 +257,4 @@ public class Board implements BoardGame {
         return values;
     }
 }
+
