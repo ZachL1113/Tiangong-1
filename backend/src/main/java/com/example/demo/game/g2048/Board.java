@@ -29,12 +29,15 @@ public class Board implements BoardGame {
     }
 
     @com.fasterxml.jackson.annotation.JsonCreator
-        public Board(@com.fasterxml.jackson.annotation.JsonProperty("cells") int[][] cells,
-                 @com.fasterxml.jackson.annotation.JsonProperty("prev") Board prev,
-                 @com.fasterxml.jackson.annotation.JsonProperty("failed") Boolean failed,
-                 @com.fasterxml.jackson.annotation.JsonProperty("lastDir") Direction lastDir) {
-        for (int i = 0; i < 4 && cells != null && i < cells.length; i++) {
-            System.arraycopy(cells[i], 0, this.values[i], 0, Math.min(cells[i].length, 4));
+    public Board(
+        @JsonProperty("cells") int[][] cells,
+        @JsonProperty("prev") Board prev,
+        @JsonProperty("failed") Boolean failed,
+        @JsonProperty("lastDir") Direction lastDir) {
+        if (cells != null) {
+            for (int i = 0; i < 4 && i < cells.length; i++) {
+                System.arraycopy(cells[i], 0, this.values[i], 0, Math.min(cells[i].length, 4));
+            }
         }
         this.prev = prev;
         this.failed = failed != null && failed;
@@ -45,6 +48,7 @@ public class Board implements BoardGame {
         return values[x][y];
     }
 
+    @Override
     @JsonProperty("cells")
     public int[][] getCells() {
         return values;
@@ -59,6 +63,7 @@ public class Board implements BoardGame {
     @JsonProperty("lastDir")
     public Direction getLastDir() { return lastDir; }
 
+    @Override
     @JsonProperty("pieces")
     public List<BoardPiece> getPieces() {
         List<BoardPiece> pieces = new ArrayList<>();
@@ -74,20 +79,24 @@ public class Board implements BoardGame {
         return pieces;
     }
 
+    @Override
     @JsonProperty("score")
     public int getScore() {
         int max = 0;
-        for (int[] row : values)
-            for (int x : row)
-                max = Math.max(max, x);
+         for (int[] row : values) {
+            for (int v : row) max = Math.max(max, v);
+        }
         return max;
     }
+
+    @Override
     public boolean move(Integer pieceId, Direction dir) {
         if (dir == Direction.BACK) {
             if (this.prev == null) return false;
             Board previousBoard = this.prev;
-            for (int i = 0; i < 4; i++)
-                System.arraycopy(previousBoard.values[i], 0, values[i], 0, 4);
+            for (int i = 0; i < 4; i++) {
+                System.arraycopy(previousBoard.values[i], 0, this.values[i], 0, 4);
+            }
             this.failed = previousBoard.failed;
             this.lastDir = previousBoard.lastDir;
             this.prev = previousBoard.prev;
@@ -97,22 +106,21 @@ public class Board implements BoardGame {
         Board previous = this.copy();
         int[][] before = copyGrid();
         switch (dir) {
-            case LEFT:  slide(false, false); break;
-            case RIGHT: slide(true, false); break;
-            case UP:    slide(false, true);  break;
-            case DOWN:  slide(true, true);   break;
-            default:    break;
+           case LEFT -> slide(false, false);
+            case RIGHT -> slide(true, false);
+            case UP -> slide(false, true);
+            case DOWN -> slide(true, true);
+            default -> {
+            }
         }
         boolean changed = !Arrays.deepEquals(before, values);
-        if (changed) {
-            this.prev = previous;
-            boolean spawned = spawnPiece(dir);
-            if (!spawned) {
-                this.failed = true;
-            }
-            this.lastDir = dir;
+        this.prev = previous;
+        boolean spawned = spawnPiece(dir);
+        if (!spawned) {
+            this.failed = true;
         }
-        return changed;
+       this.lastDir = dir;
+       return changed || spawned;
     }
    
 
@@ -133,40 +141,44 @@ public class Board implements BoardGame {
 
     private static int[] processLine(int[] line) {
         List<Integer> result = new ArrayList<>();
-        for (int x : line) if (x != 0) result.add(x);
-        for (int i = 0; i < result.size() - 1; i++) {
-            if (result.get(i).equals(result.get(i + 1))) {
-                result.set(i, result.get(i) * 2);
-                result.remove(i + 1);
+         for (int v : line) if (v != 0) result.add(v);
+        boolean merged;
+        do {
+            merged = false;
+            for (int i = 0; i < result.size() - 1; i++) {
+                if (result.get(i).equals(result.get(i + 1))) {
+                    result.set(i, result.get(i) * 2);
+                    result.remove(i + 1);
+                    merged = true;
+                }
             }
-        }
+        } while (merged);
         while (result.size() < 4) result.add(0);
         return result.stream().mapToInt(i -> i).toArray();
     }
 
     private int[][] copyGrid() {
         int[][] copy = new int[4][4];
-        for (int i = 0; i < 4; i++) System.arraycopy(values[i], 0, copy[i], 0, 4);
+        for (int i = 0; i < 4; i++) {
+            System.arraycopy(values[i], 0, copy[i], 0, 4);
+        }
         return copy;
     }
 
-    @com.fasterxml.jackson.annotation.JsonIgnore
+    @Override
+    @JsonIgnore
     public boolean isSolved() {
-        for (int[] row : values)
-            for (int val : row)
-                if (val == 2048) return true;
+       for (int[] row : values) {
+            for (int v : row) if (v == 2048) return true;
+        }
         return false;
     }
 
 
-    @com.fasterxml.jackson.annotation.JsonIgnore
+    @Override
+    @JsonIgnore
     public boolean isFailed() {
-        if (failed) return true;
-        for (Direction d : Direction.values()) {
-            Board copy = this.copy();
-            if (copy.move(d)) return false;
-        }
-        return true;
+        return failed;
     }
     
     public boolean spawnPiece(Direction dir) {
