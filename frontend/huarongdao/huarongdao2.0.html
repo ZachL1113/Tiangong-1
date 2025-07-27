@@ -557,7 +557,9 @@
                         console.log(currentBoard);
                         printCurrentBoard(game, currentBoard);
                         status = result.success;
+                        gameend = result.gameend
                         console.log("status: ", status);
+                        console.log("gameend: ", gameend);
 
                         if (game === "huarongdao") {
                             steps = steps + 1;
@@ -572,7 +574,12 @@
                             max = Math.max(...currentBoard.cells.flat());
                             document.getElementById("stepcount").textContent = `LargestNumber: ${max}`;
                             if (status) {
-                                show2048Popup(max);
+                                timestop()
+                                if (gameend === -1) {
+                                    show2048Popup(max, formattedTime, "Game Over!");
+                                }else{
+                                    show2048Popup(max, formattedTime, "Success!");
+                                }
                             }
                         }
                     }
@@ -737,12 +744,60 @@
             }
         }
 
+        async function show2048Popup(max, time, endtext) {
+            const score = max + 10000 - totalSeconds;
 
-        function show2048Popup(score) {
-            document.getElementById("popup2048Status").textContent = `${status}`
-            document.getElementById("popup2048Score").textContent = `Largest Number: ${max}`;
+            document.getElementById("popup2048Score").textContent =
+                `Time: ${time} Score: ${score}`;
+
+            document.getElementById("popup2048Status").textContent =
+                `${endtext}`;
+
             document.getElementById("2048PopUp").style.display = "flex";
+
+            localplayer = loadPlayerFromLocal()
+            if (localplayer === null) {
+                window.location.replace("../login.html")
+            }
+            const playerId = loadPlayerFromLocal().id
+            console.log(playerId, "=====")
+            console.log(Date())
+            const now = new Date().toISOString();
+
+            try {
+                console.log("postdata: ", {
+                    id: parseInt(playerId),
+                    player: { id: parseInt(playerId) },
+                    game: "2048",
+                    score: score,
+                    recordedAt: now
+                });
+
+                await postData("/scores", {
+                    id: parseInt(playerId),
+                    player: { id: parseInt(playerId) },
+                    game: "2048",
+                    score: score,
+                    recordedAt: now
+                });
+
+                await postData("/situations", {
+                    game: "2048",
+                    level: level,
+                    player: { id: parseInt(playerId) },
+                    board: currentBoard
+                });
+
+                console.log("successful submission!");
+            } catch (e) {
+                console.error("submit failed", e);
+            }
         }
+        // function show2048Popup(score) {
+        //     document.getElementById("popup2048Status").textContent = `${status}`
+        //     document.getElementById("popup2048Score").textContent = `Largest Number: ${max}`;
+        //     document.getElementById("2048PopUp").style.display = "flex";
+        // }
 
         function timeStart() {
             if (!isTiming) {
