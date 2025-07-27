@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <meta charset="UTF-8">
+    <meta>
     <title>Board King</title>
     <!-- <script type="module" src="../js/backend.js"></script> -->
     <style>
@@ -250,19 +250,19 @@
                 const text = await response.text(); // 不直接 .json()
 
                 if (!response.ok) {
-                    console.error("服务器响应错误：", text);
-                    throw new Error(`网络响应不正常: ${response.status}`);
+                    console.error("server error: ", text);
+                    throw new Error(`network error: ${response.status}`);
                 }
 
                 try {
                     return JSON.parse(text);
                 } catch (e) {
-                    console.error("返回不是合法 JSON：", text);
-                    throw new Error("响应不是 JSON 格式");
+                    console.error("not JSON: ", text);
+                    throw new Error("not JSON");
                 }
 
             } catch (error) {
-                console.error('发送数据失败:', error);
+                console.error('update failed: ', error);
                 throw error;
             }
         }
@@ -336,7 +336,7 @@
             console.log(currentBoard)
 
             if (!currentBoard || !currentBoard.pieces) {
-                console.error("currentBoard 加载失败：", currentBoard);
+                console.error("currentBoard upload failed: ", currentBoard);
                 return;
             }
 
