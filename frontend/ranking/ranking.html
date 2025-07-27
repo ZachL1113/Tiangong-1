@@ -43,6 +43,11 @@
             padding: 8px;
             font-size: 16px;
         }
+
+        button{
+            display: block;
+            margin: 0 auto;
+        }
     </style>
 </head>
 
@@ -53,6 +58,15 @@
     <select id="gameSelect">
         <option value="2048">2048</option>
         <option value="huarongdao">huarongdao</option>
+    </select>
+
+    <!-- 新增关卡选择框，初始隐藏 -->
+    <select id="levelSelect" style="display:none;">
+        <option value="0">Level 1</option>
+        <option value="1">Level 2</option>
+        <option value="2">Level 3</option>
+        <option value="3">Level 4</option>
+        <!-- 根据后端关卡数量自行调整 -->
     </select>
 
     <table id="leaderboardTable">
@@ -68,42 +82,80 @@
         </tbody>
     </table>
 
+    <button class="homeButton" id="home">Home</button>
+
     <script>
         const tableBody = document.querySelector("#leaderboardTable tbody");
         const gameSelect = document.getElementById("gameSelect");
+        const levelSelect = document.getElementById("levelSelect");
 
-        async function fetchLeaderboard(game) {
-            const response = await fetch(`http://127.0.0.1:8080/leaderboard?game=${game}`);
-            if (!response.ok) {
-                tableBody.innerHTML = `<tr><td colspan="3">Failed to load leaderboard.</td></tr>`;
-                return;
+        async function fetchLeaderboard(game, level = null) {
+            let url = `http://127.0.0.1:8080/leaderboard?game=${game}`;
+            if (game === 'huarongdao' && level !== null) {
+                url += `&level=${level}`;
             }
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    tableBody.innerHTML = `<tr><td colspan="3">Failed to load leaderboard.</td></tr>`;
+                    return;
+                }
+                const data = await response.json();
+                tableBody.innerHTML = "";
 
-            const data = await response.json();
-            tableBody.innerHTML = "";
+                if (data.length === 0) {
+                    tableBody.innerHTML = `<tr><td colspan="3">No data available.</td></tr>`;
+                    return;
+                }
 
-            if (data.length === 0) {
-                tableBody.innerHTML = `<tr><td colspan="3">No data available.</td></tr>`;
-                return;
+                data.forEach((entry, index) => {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td>${entry.player?.name || "Unknown"}</td>
+                        <td>${entry.score}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            } catch (error) {
+                tableBody.innerHTML = `<tr><td colspan="3">Error loading leaderboard.</td></tr>`;
+                console.error(error);
             }
+        }
 
-            data.forEach((entry, index) => {
-                const row = document.createElement("tr");
-                row.innerHTML = `
-                    <td>${index + 1}</td>
-                    <td>${entry.player.name || "Unknown"}</td>
-                    <td>${entry.score}</td>
-                `;
-                tableBody.appendChild(row);
-            });
+        function updateLevelSelectVisibility() {
+            if (gameSelect.value === "huarongdao") {
+                levelSelect.style.display = "block";
+            } else {
+                levelSelect.style.display = "none";
+            }
         }
 
         gameSelect.addEventListener("change", () => {
-            fetchLeaderboard(gameSelect.value);
+            updateLevelSelectVisibility();
+            if (gameSelect.value === "huarongdao") {
+                fetchLeaderboard(gameSelect.value, levelSelect.value);
+            } else {
+                fetchLeaderboard(gameSelect.value);
+            }
         });
 
-        // Load default leaderboard on page load
-        fetchLeaderboard(gameSelect.value);
+        levelSelect.addEventListener("change", () => {
+            fetchLeaderboard(gameSelect.value, levelSelect.value);
+        });
+
+        updateLevelSelectVisibility();
+        if (gameSelect.value === "huarongdao") {
+            fetchLeaderboard(gameSelect.value, levelSelect.value);
+        } else {
+            fetchLeaderboard(gameSelect.value);
+        }
+
+        document.querySelectorAll(".homeButton").forEach(button => {
+            button.addEventListener("click", () => {
+                window.location.href = "../frontpage.html";
+            });
+        });
     </script>
 
 </body>

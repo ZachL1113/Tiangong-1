@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Player Profile</title>
     <style>
@@ -48,6 +49,8 @@
             <!-- Dynamically filled -->
         </tbody>
     </table>
+
+    <button class="homeButton" id="home">Home</button>
 
     <script>
         const baseUrl = "http://127.0.0.1:8080";
@@ -99,6 +102,12 @@
             }
         }
         loadProfile();
+
+        document.querySelectorAll(".homeButton").forEach(button => {
+            button.addEventListener("click", () => {
+                window.location.href = "../frontpage.html";
+            });
+        });
     </script>
 </body>
 

@@ -2,131 +2,106 @@
 <html>
 
 <head>
-    <meta charset="UTF-8">
+    <title>Login - Board King</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background: #f5f5f5;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+            background: #f0f0f0;
+            text-align: center;
+            padding-top: 10vh;
         }
 
-        .login-container {
+        .login-box {
             background: white;
+            display: inline-block;
             padding: 2rem;
             border-radius: 1rem;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            text-align: center;
         }
 
-        .welcome {
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        input {
-            padding: 0.5rem;
-            font-size: 1rem;
-            margin-top: 1rem;
-        }
-
+        input,
         button {
-            margin-top: 1rem;
-            padding: 0.5rem 1rem;
             font-size: 1rem;
-            border: none;
-            background-color: #4CAF50;
-            color: white;
-            border-radius: 0.5rem;
-            cursor: pointer;
+            padding: 0.5rem;
+            margin: 0.5rem;
         }
     </style>
 </head>
 
 <body>
-    <div class="login-container">
-        <div id="welcome" class="welcome">Welcome back, <span id="playerName"></span>!</div>
+    <div class="login-box">
+        <h1>WELCOME TO Board King!</h1>
+        <p>Please enter nickname: </p>
+        <input type="text" id="nicknameInput" placeholder="Your Nickname">
+        <br>
+        <button onclick="createNewPlayer()">START GAME</button>
 
-        <div id="namePrompt" class="hidden">
-            <div class="welcome">Enter your nickname to start:</div>
-            <input type="text" id="nicknameInput" placeholder="Your nickname" />
-            <br>
-            <button onclick="createNewPlayer()">Start</button>
-        </div>
+        <hr>
+        <p>OR log in by: </p>
+        <a href="http://127.0.0.1:8080/oauth2/authorization/google">
+            <button>Google</button>
+        </a>
+        <a href="http://127.0.0.1:8080/oauth2/authorization/facebook">
+            <button>Facebook</button>
+        </a>
     </div>
 
     <script>
         function savePlayerLocally(player) {
             localStorage.setItem("player", JSON.stringify(player));
-            console.log(player,"======1");
         }
-
 
         function loadPlayerFromLocal() {
             const data = localStorage.getItem("player");
             return data ? JSON.parse(data) : null;
         }
 
-        function createNewPlayer() {
+        async function autoLoginIfOAuthAuthenticated() {
+            const localPlayer = loadPlayerFromLocal();
+            if (localPlayer) return;
+
+            try {
+                const res = await fetch("http://127.0.0.1:8080/api/me");
+                if (res.ok) {
+                    const player = await res.json();
+                    if (player && player.nickname) {
+                        savePlayerLocally(player);
+                        window.location.href = "frontpage.html";
+                    }
+                }
+            } catch (e) {
+                console.warn("OAuth automatically log in failed", e);
+            }
+        }
+
+        async function createNewPlayer() {
             const nickname = document.getElementById("nicknameInput").value.trim();
             if (!nickname) {
-                alert("Please enter a nickname.");
+                alert("Please enter nickname");
                 return;
             }
 
-            const playerData = {
-                name: nickname
-            };
-
-            fetch("http://127.0.0.1:8080/players", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(playerData)
-            })
-                .then(response => {
-                    if (!response.ok) return response.json().then(err => { throw new Error(JSON.stringify(err)); });
-                    return response.json();
-                })
-                .then(player => {
-                    savePlayerLocally(player); 
-                    showWelcome(player.name); 
-                    // setTimeout(() => {
-                    //     window.location.replace("frontpage.html");
-                    // }, 1000);
-                })
-                .catch(error => {
-                    console.error("Error:", error);
-                    alert("Failed to create player: " + error.message);
+            try {
+                const res = await fetch("http://127.0.0.1:8080/players", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ nickname })
                 });
-        }
-
-        function showWelcome(name) {
-            document.getElementById("playerName").textContent = name;
-            document.getElementById("welcome").classList.remove("hidden");
-            document.getElementById("namePrompt").classList.add("hidden");
-        }
-
-        // 初始化
-        window.onload = function () {
-            const player = loadPlayerFromLocal();
-            if (player) {
-                showWelcome(player.name);
-                setTimeout(() => {
-                    window.location.replace("frontpage.html");
-                }, 1000);
-            } else {
-                document.getElementById("welcome").classList.add("hidden");
-                document.getElementById("namePrompt").classList.remove("hidden");
+                if (res.ok) {
+                    const player = await res.json();
+                    savePlayerLocally(player);
+                    window.location.href = "frontpage.html";
+                } else {
+                    alert("create new player failed");
+                }
+            } catch (e) {
+                alert("network error");
+                console.error(e);
             }
         }
+
+        window.onload = autoLoginIfOAuthAuthenticated;
     </script>
 </body>
 

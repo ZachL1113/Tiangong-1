@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
+    <title>Board King</title>
     <link rel="stylesheet" href="css/frontpage_styles.css">
 </head>
 
@@ -14,61 +15,67 @@
         <div class="buttoncontainer">
             <button id="huarongdao">Huarongdao</button>
             <button id="2048">2048</button>
-            <button id="snake">snake</button>
+            <button id="snake">Snake</button>
             <button id="ranking">Ranking</button>
             <button id="profile">Profile</button>
         </div>
-        <script>
-            const BASE_URL = 'http://127.0.0.1:8080';
-            /** 
-            * @param {string} game
-            * @param {number} [level]
-            * @returns {Promise<Object>}
-            */
-
-            async function getLeaderboard(game) {
-                const res = await fetch(`${BASE_URL}/leaderboard?game=${encodeURIComponent(game)}`);
-                if (!res.ok) throw new Error("Leaderboard fetch failed");
-                return await res.json();
-            }
-
-            async function getPlayerScores(playerId) {
-                const res = await fetch(`${BASE_URL}/players/${encodeURIComponent(playerId)}/scores`);
-                if (!res.ok) throw new Error("Player scores fetch failed");
-                return await res.json();
-            }
-
-            async function getPlayerRank(playerId, game) {
-                const res = await fetch(`${BASE_URL}/players/${encodeURIComponent(playerId)}/leaderboard-rank?game=${encodeURIComponent(game)}`);
-                if (!res.ok) throw new Error("Player rank fetch failed");
-                return await res.json();
-            }
-
-            async function getHistoryScore(historyId) {
-                const res = await fetch(`${BASE_URL}/history/${encodeURIComponent(historyId)}`);
-                if (!res.ok) throw new Error("History fetch failed");
-                return await res.json();
-            }
-
-            document.getElementById("huarongdao").addEventListener("click", () => {
-                window.location.href = `huarongdao/huarongdao_level.html`;
-            });
-            document.getElementById("2048").addEventListener("click", () => {
-                window.location.href = `huarongdao/huarongdao2.0.html?game=2048`;
-            });
-            document.getElementById("snake").addEventListener("click", () => {
-                window.location.href = `huarongdao/huarongdao2.0.html?game=snake`;
-            });
-
-            document.getElementById("ranking").addEventListener("click", async () => {
-                window.location.href = `ranking/ranking.html`;
-            });
-
-            document.getElementById("profile").addEventListener("click", async () => {
-                window.location.href = `profile/profile.html`;
-            });
-        </script>
     </div>
+
+    <script>
+        const BASE_URL = 'http://127.0.0.1:8080';
+
+        // 保存玩家信息到本地
+        function savePlayerLocally(player) {
+            localStorage.setItem("player", JSON.stringify(player));
+        }
+
+        function loadPlayerFromLocal() {
+            const data = localStorage.getItem("player");
+            return data ? JSON.parse(data) : null;
+        }
+
+        // 尝试从 /api/me 获取登录用户
+        async function fetchCurrentUser() {
+            try {
+                const res = await fetch(`${BASE_URL}/api/me`, { credentials: 'include' });
+                if (!res.ok) throw new Error("Not logged in");
+                const player = await res.json();
+                if (player && player.id) {
+                    savePlayerLocally(player);
+                } else {
+                    throw new Error("No valid player data");
+                }
+            } catch (e) {
+                console.warn("No OAuth user found, redirecting to login.");
+                window.location.href = "login.html";
+            }
+        }
+
+        // 页面加载时获取当前用户
+        window.addEventListener("DOMContentLoaded", async () => {
+            const localPlayer = loadPlayerFromLocal();
+            if (!localPlayer) {
+                await fetchCurrentUser();
+            }
+        });
+
+        // 按钮跳转逻辑
+        document.getElementById("huarongdao").addEventListener("click", () => {
+            window.location.href = `huarongdao/huarongdao_level.html`;
+        });
+        document.getElementById("2048").addEventListener("click", () => {
+            window.location.href = `huarongdao/huarongdao2.0.html?game=2048`;
+        });
+        document.getElementById("snake").addEventListener("click", () => {
+            window.location.href = `huarongdao/huarongdao2.0.html?game=snake`;
+        });
+        document.getElementById("ranking").addEventListener("click", () => {
+            window.location.href = `ranking/ranking.html`;
+        });
+        document.getElementById("profile").addEventListener("click", () => {
+            window.location.href = `profile/profile.html`;
+        });
+    </script>
 </body>
 
 </html>

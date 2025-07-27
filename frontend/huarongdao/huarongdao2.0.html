@@ -246,13 +246,27 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(params),
                 });
-                if (!response.ok) throw new Error('网络响应不正常');
-                return await response.json();
+
+                const text = await response.text(); // 不直接 .json()
+
+                if (!response.ok) {
+                    console.error("服务器响应错误：", text);
+                    throw new Error(`网络响应不正常: ${response.status}`);
+                }
+
+                try {
+                    return JSON.parse(text);
+                } catch (e) {
+                    console.error("返回不是合法 JSON：", text);
+                    throw new Error("响应不是 JSON 格式");
+                }
+
             } catch (error) {
                 console.error('发送数据失败:', error);
                 throw error;
             }
         }
+
         const gameTypeConfig = {
             '2048': {
                 attrs: {
@@ -510,14 +524,6 @@
 
             onClickMove(direction);
 
-            if (status) {
-                console.log("Success!");
-                if (game === "huarongdao") {
-                    timeStop();
-                    showHuarongdaoPopup(steps, formattedTime);
-                }
-            }
-
             isDragging = false;
             activePiece = null;
         }
@@ -543,26 +549,36 @@
 
         function onClickMove(dir) {
             direction = dir;
-            console.log(game, pieceName, direction)
+            console.log(game, pieceName, direction);
             sendMove(game, JSON.stringify(currentBoard), direction, pieceId)
                 .then(result => {
                     if (result.valid) {
                         currentBoard = JSON.parse(result.boardJson);
                         console.log(currentBoard);
                         printCurrentBoard(game, currentBoard);
-                        status = result.success
-                        console.log("status: ", status)
+                        status = result.success;
+                        console.log("status: ", status);
+
                         if (game === "huarongdao") {
                             steps = steps + 1;
                             document.getElementById("stepcount").textContent = `Step: ${steps}`;
+                            if (status) {
+                                timeStop();
+                                showHuarongdaoPopup(steps, formattedTime);
+                            }
                         }
+
                         if (game === "2048") {
                             max = Math.max(...currentBoard.cells.flat());
-                            document.getElementById("stepcount").textContent = `LargestNumber: ${max}`
+                            document.getElementById("stepcount").textContent = `LargestNumber: ${max}`;
+                            if (status) {
+                                show2048Popup(max);
+                            }
                         }
                     }
-                })
+                });
         }
+
 
         document.getElementById("back").addEventListener("click", () => {
             sendMove(game, JSON.stringify(currentBoard), "B", pieceId)
