@@ -557,7 +557,7 @@
                         console.log(currentBoard);
                         printCurrentBoard(game, currentBoard);
                         status = result.success;
-                        gameend = result.gameend
+                        gameend = result.gameEnd
                         console.log("status: ", status);
                         console.log("gameend: ", gameend);
 
@@ -574,7 +574,7 @@
                             max = Math.max(...currentBoard.cells.flat());
                             document.getElementById("stepcount").textContent = `LargestNumber: ${max}`;
                             if (status) {
-                                timestop()
+                                timeStop()
                                 if (gameend === -1) {
                                     show2048Popup(max, formattedTime, "Game Over!");
                                 }else{
