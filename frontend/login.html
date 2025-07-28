@@ -30,8 +30,8 @@
 <body>
     <div class="login-box">
         <h1>WELCOME TO Board King!</h1>
-        <p>Please enter nickname: </p>
-        <input type="text" id="nicknameInput" placeholder="Your Nickname">
+        <p>Please enter name: </p>
+        <input type="text" id="nameInput" placeholder="Your Name">
         <br>
         <button onclick="createNewPlayer()">START GAME</button>
 
@@ -63,7 +63,7 @@
                 const res = await fetch("http://127.0.0.1:8080/api/me");
                 if (res.ok) {
                     const player = await res.json();
-                    if (player && player.nickname) {
+                    if (player && player.name) {
                         savePlayerLocally(player);
                         window.location.href = "frontpage.html";
                     }
@@ -74,9 +74,9 @@
         }
 
         async function createNewPlayer() {
-            const nickname = document.getElementById("nicknameInput").value.trim();
-            if (!nickname) {
-                alert("Please enter nickname");
+            const name = document.getElementById("nameInput").value.trim();
+            if (!name) {
+                alert("Please enter name");
                 return;
             }
 
@@ -86,7 +86,7 @@
                     headers: {
                         "Content-Type": "application/json"
                     },
-                    body: JSON.stringify({ nickname })
+                    body: JSON.stringify({ name })
                 });
                 if (res.ok) {
                     const player = await res.json();
