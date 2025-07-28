@@ -190,41 +190,13 @@ public class Board implements BoardGame {
 
 
     public boolean spawnPiece(Direction dir) {
-    Direction edge = dir.opposite();
-    List<int[]> candidates = new ArrayList<>();
-
-    switch (edge) {
-        case LEFT:
-            for (int row = 0; row < 4; row++) {
-                if (values[row][0] == 0) {
-                    candidates.add(new int[]{row, 0});
+        List<int[]> candidates = new ArrayList<>();
+            for (int x = 0; x < 4; x++) {
+                for (int y = 0; y < 4; y++) {
+                    if (values[x][y] == 0) {
+                        candidates.add(new int[] { x, y });
                 }
             }
-            break;
-        case RIGHT:
-            for (int row = 0; row < 4; row++) {
-                if (values[row][3] == 0) {
-                    candidates.add(new int[]{row, 3});
-                }
-            }
-            break;
-        case UP:
-            for (int col = 0; col < 4; col++) {
-                if (values[0][col] == 0) {
-                    candidates.add(new int[]{0, col});
-                }
-            }
-            break;
-        case DOWN:
-            for (int col = 0; col < 4; col++) {
-                if (values[3][col] == 0) {
-                    candidates.add(new int[]{3, col});
-                }
-            }
-            break;
-        default:
-            break;
-    }
 
     if (candidates.isEmpty()) {
         return false;
