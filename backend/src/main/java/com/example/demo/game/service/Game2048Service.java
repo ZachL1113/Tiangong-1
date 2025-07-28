@@ -21,7 +21,8 @@ public class Game2048Service implements GameService {
         Direction dir = Direction.fromInput(req.direction());
         boolean valid = board.move(req.pieceId(), dir);
         int endState = board.isSolved() ? 1 : board.isFailed() ? -1 : 0;
-        return new MoveResponse(board.toJson(), valid, board.isSolved(), endState);
+        boolean ended = board.isSolved() || board.isFailed();
+        return new MoveResponse(board.toJson(), valid, ended, endState);
     }
 
 }
