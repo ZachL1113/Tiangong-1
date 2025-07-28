@@ -197,6 +197,7 @@ public class Board implements BoardGame {
                         candidates.add(new int[] { x, y });
                 }
             }
+            }
 
     if (candidates.isEmpty()) {
         return false;
