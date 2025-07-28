@@ -217,7 +217,7 @@
          * @param {string} boardJson - 当前棋盘状态（JSON 字符串）
          * @param {string} direction - 方向：U / D / L / R（或 W/A/S/D）
          * @param {number} pieceId - 棋子编号（仅部分游戏使用）
-         * @returns {Promise<Object>} 返回 { boardJson, valid, success }
+         * @returns {Promise<Object>} 返回 { boardJson, valid, success,gameEnd }
          */
 
         async function sendMove(game, boardJson, direction, pieceId) {
