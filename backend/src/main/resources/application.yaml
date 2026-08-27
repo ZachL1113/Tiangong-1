@@ -1,17 +1,19 @@
 spring:
- datasource:
-  url: jdbc:sqlite:./mydb.sqlite
-  driver-class-name: org.sqlite.JDBC
- jpa:
-  database-platform: org.hibernate.community.dialect.SQLiteDialect
-  hibernate:
-   ddl-auto: update
-  show-sql: true
- security:
+  datasource:
+    url: jdbc:sqlite:./mydb.sqlite
+    driver-class-name: org.sqlite.JDBC
+  jpa:
+    database-platform: org.hibernate.community.dialect.SQLiteDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+  security:
     oauth2:
       client:
         registration:
           google:
-            client-id: 596113138051-ra8v8pe8oaf4243cecqs3919epkel78v.apps.googleusercontent.com
-            client-secret: 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
-            scope: [email, profile]
+            client-id: ${GOOGLE_OAUTH_CLIENT_ID}
+            client-secret: ${GOOGLE_OAUTH_CLIENT_SECRET}
+            scope:
+              - email
+              - profile
