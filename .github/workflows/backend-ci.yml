@@ -35,4 +35,4 @@ jobs:
           cache-dependency-path: backend/pom.xml
 
       - name: Verify backend and packaged frontend
-        run: ./mvnw --batch-mode clean verify
+        run: bash ./mvnw --batch-mode clean verify
