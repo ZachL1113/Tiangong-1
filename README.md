@@ -30,7 +30,7 @@ The Maven build packages the frontend into the Spring Boot application so OAuth 
 cd backend
 export GOOGLE_OAUTH_CLIENT_ID="your-client-id"
 export GOOGLE_OAUTH_CLIENT_SECRET="your-client-secret"
-./mvnw spring-boot:run
+bash ./mvnw spring-boot:run
 ```
 
 Then open `http://localhost:8080/login.html`. Do not open the frontend HTML files directly from the filesystem.
