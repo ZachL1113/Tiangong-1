@@ -18,7 +18,7 @@ Two complete games — Klotski (sliding block puzzle) and Snake — share a comm
 
 ## Known limitations
 
-- Third-party OAuth login is incomplete; built-in accounts work.
+- Third-party OAuth login requires the configuration described below.
 - Leaderboard has known issues under some conditions.
 - Not yet deployed — runs locally.
 
@@ -27,3 +27,30 @@ Two complete games — Klotski (sliding block puzzle) and Snake — share a comm
 Open `index.html` in a browser to play both games.
 
 Account login and leaderboards require the Spring Boot backend and a local SQL database to be running.
+
+### Google OAuth configuration
+
+Create or rotate a Google OAuth 2.0 client in Google Cloud Console. Never commit its credentials to this repository.
+
+Set the credentials as environment variables before starting the backend:
+
+```bash
+export GOOGLE_OAUTH_CLIENT_ID="your-client-id"
+export GOOGLE_OAUTH_CLIENT_SECRET="your-client-secret"
+cd backend
+./mvnw spring-boot:run
+```
+
+For local development, add this authorized redirect URI to the Google OAuth client:
+
+```text
+http://localhost:8080/login/oauth2/code/google
+```
+
+For deployment, add the equivalent HTTPS callback on the backend's public domain:
+
+```text
+https://YOUR_BACKEND_DOMAIN/login/oauth2/code/google
+```
+
+Configure the same two environment variables in the deployment platform's secret manager. Do not place production credentials in `.env`, `application.yaml`, frontend code, screenshots, or logs.
