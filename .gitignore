@@ -1,1 +1,9 @@
 backend/target/
+backend/mydb.sqlite
+
+.env
+.env.*
+!.env.example
+
+**/application-local.yaml
+**/application-*.local.yaml
