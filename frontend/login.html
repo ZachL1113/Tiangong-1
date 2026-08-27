@@ -37,7 +37,7 @@
 
         <hr>
         <p>OR log in by: </p>
-        <a href="http://127.0.0.1:8080/oauth2/authorization/google">
+        <a href="/oauth2/authorization/google">
             <button>Google</button>
         </a>
     </div>
@@ -57,7 +57,7 @@
             if (localPlayer) return;
 
             try {
-                const res = await fetch("http://127.0.0.1:8080/api/me");
+                const res = await fetch("/api/me");
                 if (res.ok) {
                     const player = await res.json();
                     if (player && player.name) {
@@ -78,7 +78,7 @@
             }
 
             try {
-                const res = await fetch("http://127.0.0.1:8080/players", {
+                const res = await fetch("/players", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
