@@ -90,7 +90,7 @@
         const levelSelect = document.getElementById("levelSelect");
 
         async function fetchLeaderboard(game, level = null) {
-            let url = `http://127.0.0.1:8080/leaderboard?game=${game}`;
+            let url = `/leaderboard?game=${game}`;
             if (game === 'huarongdao' && level !== null) {
                 url += `&level=${level}`;
             }
