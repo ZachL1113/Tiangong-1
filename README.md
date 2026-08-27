@@ -24,9 +24,16 @@ Two complete games — Klotski (sliding block puzzle) and Snake — share a comm
 
 ## Running locally
 
-Open `index.html` in a browser to play both games.
+The Maven build packages the frontend into the Spring Boot application so OAuth and API requests use the same origin.
 
-Account login and leaderboards require the Spring Boot backend and a local SQL database to be running.
+```bash
+cd backend
+export GOOGLE_OAUTH_CLIENT_ID="your-client-id"
+export GOOGLE_OAUTH_CLIENT_SECRET="your-client-secret"
+./mvnw spring-boot:run
+```
+
+Then open `http://localhost:8080/login.html`. Do not open the frontend HTML files directly from the filesystem.
 
 ### Google OAuth configuration
 
